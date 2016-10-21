@@ -70,16 +70,10 @@ func setSeed(seed as int64)
 
 func nextBoolean as bool
 {
-	var v = true
-	IFDEF("target_js") {
-		v = lang "js" bool {{{ Math.random() >= 0.5 }}}
+	if(nextInt() % 2 == 0) {
+		return(false)
 	}
-	ELSE {
-		if(nextInt() % 2 == 0) {
-			v = false
-		}
-	}
-	return(v)
+	return(true)
 }
 
 func nextInt as int32
@@ -89,6 +83,9 @@ func nextInt as int32
 	}
 	ELSE IFDEF("target_java") {
 		return(lang "java" int32 {{{ random.nextInt() }}})
+	}
+	ELSE IFDEF("target_js") {
+		return(nextInt(-Math.pow(2, 31), Math.pow(2, 31) - 1))
 	}
 	ELSE {
 		ERROR("Not implemented")
