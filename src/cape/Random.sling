@@ -84,6 +84,9 @@ func nextInt as int32
 	ELSE IFDEF("target_java") {
 		return(lang "java" int32 {{{ random.nextInt() }}})
 	}
+	ELSE IFDEF("target_js") {
+		return(nextInt(-Math.pow(2, 31), Math.pow(2, 31) - 1))
+	}
 	ELSE {
 		ERROR("Not implemented")
 		return(0)
@@ -97,6 +100,9 @@ func nextInt(n as int32) as int32
 	}
 	ELSE IFDEF("target_java") {
 		return(lang "java" int32 {{{ random.nextInt(n) }}})
+	}
+	ELSE IFDEF("target_js") {
+		return(lang "js" int32 {{{ Math.floor((Math.random() * n) + 1) }}})
 	}
 	ELSE {
 		ERROR("Not implemented")
@@ -115,6 +121,9 @@ func nextInt(s as int32, e as int32) as int32
 	}
 	ELSE IFDEF("target_java") {
 		return(lang "java" int32 {{{ random.nextInt(e - s + 1) + s }}});
+	}
+	ELSE IFDEF("target_js") {
+		return(lang "js" int32 {{{ Math.floor(Math.random() * (e - s) + s) }}})
 	}
 	ELSE {
 		ERROR("Not implemented")
@@ -145,6 +154,9 @@ func nextDouble as double
 	ELSE IFDEF("target_java") {
 		return(lang "java" double {{{ random.nextDouble() }}})
 	}
+	ELSE IFDEF("target_js") {
+		return(lang "js" double {{{ Math.random() }}})
+	}
 	ELSE {
 		ERROR("Not implemented")
 		return(0.0)
@@ -158,6 +170,9 @@ func nextFloat as float
 	}
 	ELSE IFDEF("target_java") {
 		return(lang "java" float {{{ random.nextFloat() }}})
+	}
+	ELSE IFDEF("target_js") {
+		return(lang "js" float {{{ Math.random().toFixed(8) }}})
 	}
 	ELSE {
 		ERROR("Not implemented")
