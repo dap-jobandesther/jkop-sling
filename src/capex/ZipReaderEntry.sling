@@ -1,0 +1,81 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class imports cape:
+
+prop name as string;
+prop compressedSize as int;
+prop uncompressedSize as int;
+prop isDirectory as bool;
+
+func writeToFile(file as File) virtual as bool
+{
+	return(false);
+}
+
+func writeToDir(dir as File, fullPath as bool = true, overwrite as bool = true) as File
+{
+	if(dir == null || name == null) {
+		return(null);
+	}
+	var path as File;
+	if(fullPath == false) {
+		var nn as string;
+		var r = String.lastIndexOf(name, '/');
+		if(r < 1) {
+			nn = name;
+		}
+		else {
+			nn = String.subString(name, r+1);
+		}
+		if(nn == null || String.getLength(nn) < 1) {
+			return(null);
+		}
+		path = dir.entry(nn);
+	}
+	else {
+		path = dir;
+		foreach(x in String.split(name, '/')) {
+			if(x != null && String.getLength(x) > 0) {
+				path = path.entry(x);
+			}
+		}
+		var dd = path.getParent();
+		if(dd.isDirectory() == false) {
+			dd.createDirectoryRecursive();
+		}
+		if(dd.isDirectory() == false) {
+			return(null);
+		}
+	}
+	if(overwrite == false) {
+		if(path.exists()) {
+			return(null);
+		}
+	}
+	if(writeToFile(path) == false) {
+		return(null);
+	}
+	return(path);
+}

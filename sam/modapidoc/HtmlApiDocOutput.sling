@@ -1,0 +1,477 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is SoftwareProjectOutputFilter imports compiler imports ast imports cape:
+
+class MyVisitor is NodeVisitor
+{
+	prop namespaces = new vector<NameSpaceNode>
+	prop entities = new vector<EntityDeclarationNode>
+
+	func visit(ctx as compiler.RunContext, node as NodeObject) override as bool
+	{
+		if(node is NameSpaceNode) {
+			namespaces += node as! NameSpaceNode
+		}
+		else if(node is EntityDeclarationNode) {
+			if(node is TemplateDeclarationNode == false) {
+				entities += node as! EntityDeclarationNode
+			}
+		}
+		return(true)
+	}
+}
+
+var templateDir as cape.File
+prop config as DynamicMap
+
+func setTemplateDir(ctx as RunContext, value as cape.File) as this
+{
+	templateDir = value
+	return(this)
+}
+
+func sortVector(ctx as RunContext, vector as DynamicVector)
+{
+	vector.sort(func(a as object, b as object) as int {
+		var sa as string
+		var sb as string
+		var amap = a as DynamicMap
+		var bmap = b as DynamicMap
+		if(amap != null) {
+			sa = amap.getString("name")
+		}
+		if(bmap != null) {
+			sb = bmap.getString("name")
+		}
+		return(String.compare(sa, sb))
+	})
+}
+
+func toDynamicMap(ctx as compiler.RunContext, namespace as NameSpaceNode) as DynamicMap
+{
+	if(namespace == null) {
+		return(null)
+	}
+	var v = new DynamicMap()
+	v.set("type", "namespace")
+	v.set("name", namespace.getNodeName(ctx))
+	v.set("qualifiedName", namespace.getNodeQualifiedNameString(ctx))
+	v.set("qualifiedNameComponents", namespace.getNodeQualifiedNameVector(ctx))
+	var parent = namespace.getParent(ctx)
+	if(parent != null) {
+		var pqn = parent.getNodeQualifiedNameString(ctx)
+		if(cape.String.isEmpty(pqn) == false) {
+			v.set("parentQualifiedName", pqn)
+		}
+	}
+	var children = new DynamicVector()
+	var interfaces = new DynamicVector()
+	var classes = new DynamicVector()
+	foreach(entity as EntityDeclarationNode in namespace.getNodes(ctx)) {
+		var nn = entity.getNodeName(ctx)
+		if(String.isEmpty(nn)) {
+			continue
+		}
+		var cc = new DynamicMap()
+		cc.set("name", nn)
+		cc.set("qualifiedName", entity.getNodeQualifiedNameString(ctx))
+		cc.set("description", entity.getDescription(ctx))
+		children.append(cc)
+		if(entity is ClassDeclarationNode) {
+			classes.append(cc)
+		}
+		else if(entity is InterfaceDeclarationNode) {
+			interfaces.append(cc)
+		}
+	}
+	sortVector(ctx, children)
+	sortVector(ctx, interfaces)
+	sortVector(ctx, classes)
+	v.set("children", children)
+	v.set("interfaces", interfaces)
+	v.set("classes", classes)
+	return(v)
+}
+
+func getNodeModifierStrings(ctx as RunContext, node as NodeObject) as DynamicVector
+{
+	var v = new DynamicVector()
+	foreach(mod as ModifierNode in node.getModifiers(ctx)) {
+		var mods = sam.sling.SlingSourceOutput.modifierToString(ctx, mod)
+		if(mods == null) {
+			ctx.warning("Unknown modifier node encountered: `" .. mod.getNodeTypeDisplay(ctx) .. "'", mod)
+		}
+		else {
+			v.append(mods)
+		}
+	}
+	v.sort()
+	return(v)
+}
+
+func toDynamicMap(ctx as RunContext, dataType as DataTypeNode, possibleParent as EntityDeclarationNode = null) as DynamicMap
+{
+	var v = new DynamicMap()
+	v.set("display", sam.sling.SlingSourceOutput.dataTypeToString(ctx, dataType))
+	var rdt = dataType as ReferenceDataTypeNode
+	if(rdt != null) {
+		var ref = rdt.get_referenced_node(ctx.silent())
+		if(ref != null) {
+			if(ref == possibleParent) {
+				v.set("display", "this")
+			}
+			else {
+				var refstr = ref.getNodeQualifiedNameString(ctx)
+				if(cape.String.isEmpty(refstr) == false) {
+					v.set("reference", refstr)
+				}
+			}
+		}
+	}
+	return(v)
+}
+
+func functionParametersToVector(ctx as RunContext, params as eq.api.Array) as DynamicVector
+{
+	var v = new DynamicVector()
+	foreach(param as NodeObject in params) {
+		var vd = param as VariableDeclarationNode
+		if(vd != null) {
+			var cc = new DynamicMap()
+			cc.set("name", vd.getNodeName(ctx))
+			cc.set("dataType", toDynamicMap(ctx, vd.getType(ctx)))
+			cc.set("modifiers", getNodeModifierStrings(ctx, vd))
+			var init = vd.getInitializer(ctx)
+			if(init != null) {
+				var negative = false
+				if(init is NegativeNumberExpressionNode) {
+					negative = true
+					init = (init as! NegativeNumberExpressionNode).getExpression(ctx)
+				}
+				var initStr as string
+				var lit = init as LiteralExpressionNode
+				if(lit == null) {
+					ctx.warning("Initializer is not a literal expression: `" .. init.getNodeTypeDisplay(ctx) .. "'", init)
+				}
+				else {
+					initStr = sam.sling.SlingSourceOutput.literalExpressionToString(ctx, lit)
+				}
+				if(initStr != null) {
+					if(negative) {
+						cc.set("initializer", "-" .. initStr)
+					}
+					else {
+						cc.set("initializer", initStr)
+					}
+				}
+			}
+			v.append(cc)
+		}
+		else {
+			ctx.warning("Unrecognized node as function parameter: `" .. param.getNodeTypeDisplay(ctx) .. "'", param)
+		}
+	}
+	return(v)
+}
+
+func toDynamicMap(ctx as compiler.RunContext, entity as EntityDeclarationNode) as DynamicMap
+{
+	if(entity == null) {
+		return(null)
+	}
+	var v = new DynamicMap()
+	if(entity is ClassDeclarationNode) {
+		v.set("type", "class")
+	}
+	else if(entity is InterfaceDeclarationNode) {
+		v.set("type", "interface")
+	}
+	else {
+		v.set("type", "entity")
+	}
+	v.set("name", entity.getNodeName(ctx))
+	v.set("qualifiedName", entity.getNodeQualifiedNameString(ctx))
+	v.set("qualifiedNameComponents", entity.getNodeQualifiedNameVector(ctx))
+	v.set("description", entity.getDescription(ctx))
+	v.set("modifiers", getNodeModifierStrings(ctx, entity))
+	var parent = entity.getParent(ctx)
+	if(parent != null) {
+		var pqn = parent.getNodeQualifiedNameString(ctx)
+		if(cape.String.isEmpty(pqn) == false) {
+			v.set("parentQualifiedName", pqn)
+		}
+	}
+	var constants = new DynamicVector()
+	var staticVariables = new DynamicVector()
+	var staticMethods = new DynamicVector()
+	var constructors = new DynamicVector()
+	var instanceMethods = new DynamicVector()
+	var instanceVariables = new DynamicVector()
+	var innerTypes = new DynamicVector()
+	var baseTypes = new DynamicVector()
+	var genericTypes = new DynamicVector()
+	var children = new DynamicVector()
+	if(entity is GenericCapableEntityDeclarationNode) {
+		foreach(type as TemplateDeclarationNode in (entity as! GenericCapableEntityDeclarationNode).getGenericTypes(ctx)) {
+			var name = type.getNodeName(ctx)
+			if(cape.String.isEmpty(name)) {
+				continue
+			}
+			genericTypes.append(name)
+		}
+	}
+	foreach(btn as BaseTypeNode in entity.getBaseTypes(ctx)) {
+		var dt = btn.getType(ctx)
+		if(dt == null) {
+			continue
+		}
+		baseTypes.append(toDynamicMap(ctx, dt))
+	}
+	foreach(childNode as NodeObject in entity.getNodes(ctx)) {
+		var namedNode = childNode as NamedNode
+		if(namedNode == null) {
+			continue
+		}
+		var nn = namedNode.getNodeName(ctx)
+		if(String.isEmpty(nn)) {
+			continue
+		}
+		var cc = new DynamicMap()
+		cc.set("name", nn)
+		cc.set("modifiers", getNodeModifierStrings(ctx, childNode))
+		children.append(cc)
+		if(childNode is EntityDeclarationNode) {
+			if(childNode is ClassDeclarationNode) {
+				cc.set("type", "class")
+			}
+			else if(childNode is InterfaceDeclarationNode) {
+				cc.set("type", "interface")
+			}
+			else {
+				ctx.warning("Unrecognized entity type encountered: `" .. childNode.getNodeTypeDisplay(ctx) .. "'", childNode)
+				cc.set("type", "entity")
+			}
+			cc.set("qualifiedName", childNode.getNodeQualifiedNameString(ctx))
+			cc.set("description", (childNode as! EntityDeclarationNode).getDescription(ctx))
+			innerTypes.append(cc)
+		}
+		else if(childNode is VariableDeclarationNode) {
+			cc.set("dataType", toDynamicMap(ctx, (childNode as! VariableDeclarationNode).getType(ctx)))
+			if(ConstModifierNode.exists_in(ctx, childNode)) {
+				cc.set("type", "constant")
+				constants.append(cc)
+			}
+			else if(StaticModifierNode.exists_in(ctx, childNode)) {
+				cc.set("type", "staticVariable")
+				staticVariables.append(cc)
+			}
+			else {
+				cc.set("type", "instanceVariable")
+				instanceVariables.append(cc)
+			}
+		}
+		else if(childNode is ConstructorDeclarationNode) {
+			cc.set("type", "constructor")
+			constructors.append(cc)
+		}
+		else if(childNode is DestructorDeclarationNode) {
+			// Ignore with pride.
+		}
+		else if(childNode is FunctionDeclarationNode) {
+			cc.set("returnType", toDynamicMap(ctx, (childNode as! FunctionDeclarationNode).getType(ctx), entity))
+			if(StaticModifierNode.exists_in(ctx, childNode)) {
+				cc.set("type", "staticMethod")
+				staticMethods.append(cc)
+			}
+			else {
+				cc.set("type", "instanceMethod")
+				instanceMethods.append(cc)
+			}
+		}
+		else if(childNode is CommentNode) {
+			// Ignore with pride.
+		}
+		else {
+			ctx.warning("Unrecognized node type in entity: `" .. childNode.getNodeTypeDisplay(ctx) .. "'", childNode)
+		}
+		if(childNode is FunctionDeclarationBaseNode) {
+			cc.set("parameters", functionParametersToVector(ctx, (childNode as! FunctionDeclarationBaseNode).getParameters(ctx)))
+			cc.set("description", (childNode as! FunctionDeclarationBaseNode).getDescription(ctx))
+		}
+	}
+	sortVector(ctx, constants)
+	sortVector(ctx, staticVariables)
+	sortVector(ctx, staticMethods)
+	sortVector(ctx, constructors)
+	sortVector(ctx, instanceMethods)
+	sortVector(ctx, instanceVariables)
+	sortVector(ctx, innerTypes)
+	sortVector(ctx, baseTypes)
+	sortVector(ctx, children)
+	v.set("constants", constants)
+	v.set("staticVariables", staticVariables)
+	v.set("staticMethods", staticMethods)
+	v.set("constructors", constructors)
+	v.set("instanceMethods", instanceMethods)
+	v.set("instanceVariables", instanceVariables)
+	v.set("innerTypes", innerTypes)
+	v.set("baseTypes", baseTypes)
+	v.set("genericTypes", genericTypes)
+	v.set("children", children)
+	return(v)
+}
+
+func setCommonValues(ctx as RunContext, map as DynamicMap)
+{
+	var name as string
+	var version as string
+	if(config != null) {
+		name = config.getString("name")
+		version = config.getString("version")
+	}
+	if(cape.String.isEmpty(name)) {
+		name = "API Documentation"
+	}
+	if(cape.String.isEmpty(version)) {
+		var dateTime = DateTime.forNow()
+		version = DateTime.forNow().toStringDate(0 as char)
+	}
+	map.set("name", name)
+	map.set("version", version)
+	map.set("compiler", VALUE("sling_project_title") .. " " .. VALUE("sling_project_version"))
+}
+
+func executeProjectOutputFilter(ctx as compiler.RunContext, project as SoftwareProjectNode, output as eq.os.File) override as bool
+{
+	if(templateDir == null) {
+		ctx.error("No template directory")
+		return(false)
+	}
+	ctx.status("Generating documentation ..")
+	var vs = new MyVisitor()
+	if(executeVisitor(ctx, vs, project) == false) {
+		return(false)
+	}
+	var nsTemplate = capex.TextTemplate.forFile(templateDir.entry("namespace.html.t"), "<%", "%>", capex.TextTemplate.TYPE_HTML)
+	if(nsTemplate == null) {
+		ctx.error("Failed to process namespace template", project)
+		return(false)
+	}
+	var entityTemplate = capex.TextTemplate.forFile(templateDir.entry("entity.html.t"), "<%", "%>", capex.TextTemplate.TYPE_HTML)
+	if(entityTemplate == null) {
+		ctx.error("Failed to process entity template", project)
+		return(false)
+	}
+	var indexTemplate = capex.TextTemplate.forFile(templateDir.entry("index.html.t"), "<%", "%>", capex.TextTemplate.TYPE_HTML)
+	if(indexTemplate == null) {
+		ctx.error("Failed to process index template", project)
+		return(false)
+	}
+	var outputDir = cape.FileInstance.forPath(eq.api.String.as_strptr(output.get_native_path()))
+	var nsnames = new DynamicVector()
+	var nsdescs as DynamicMap
+	if(config != null) {
+		nsdescs = config.getDynamicMap("namespaceDescriptions")
+	}
+	foreach(namespace in vs.getNamespaces()) {
+		var map = toDynamicMap(ctx, namespace)
+		if(map == null) {
+			return(false)
+		}
+		if(nsdescs != null) {
+			map.set("description", nsdescs.getString(map.getString("qualifiedName")))
+		}
+		setCommonValues(ctx, map)
+		var html = nsTemplate.execute(map)
+		if(String.isEmpty(html)) {
+			ctx.error("Failed to execute template for `" .. namespace.getNodeName(ctx) .. "'", namespace)
+			return(false)
+		}
+		var of = outputDir.entry(map.getString("qualifiedName") .. ".html")
+		ctx.status("[output] " .. of.getPath() .. " ..")
+		if(of.setContentsString(html, "UTF-8") == false) {
+			ctx.error("Failed to write file: `" .. of.getPath() .. "'", namespace)
+			return(false)
+		}
+		var nsentry = new DynamicMap()
+		nsentry.set("qualifiedName", map.getString("qualifiedName"))
+		nsentry.set("description", map.getString("description"))
+		nsnames.append(nsentry)
+	}
+	foreach(entity in vs.getEntities()) {
+		var map = toDynamicMap(ctx, entity)
+		if(map == null) {
+			return(false)
+		}
+		setCommonValues(ctx, map)
+		var html = entityTemplate.execute(map)
+		if(String.isEmpty(html)) {
+			ctx.error("Failed to execute template for `" .. entity.getNodeName(ctx) .. "'", entity)
+			return(false)
+		}
+		var of = outputDir.entry(map.getString("qualifiedName") .. ".html")
+		ctx.status("[output] " .. of.getPath() .. " ..")
+		if(of.setContentsString(html, "UTF-8") == false) {
+			ctx.error("Failed to write file: `" .. of.getPath() .. "'", entity)
+			return(false)
+		}
+	}
+	var indexf = outputDir.entry("index.html")
+	ctx.status("[output] " .. indexf.getPath() .. " ..")
+	var map = new DynamicMap()
+	map.set("namespaces", nsnames)
+	if(config != null) {
+		map.set("introHeader", config.getString("introHeader"))
+		map.set("introText", config.getString("introText"))
+	}
+	setCommonValues(ctx, map)
+	var html = indexTemplate.execute(map)
+	if(String.isEmpty(html)) {
+		ctx.error("Failed to execute index template")
+		return(false)
+	}
+	if(indexf.setContentsString(html, "UTF-8") == false) {
+		ctx.error("Failed to write file: `" .. indexf.getPath() .. "'")
+		return(false)
+	}
+	var fileit = templateDir.entries()
+	while(true) {
+		var file = fileit.next()
+		if(file == null) {
+			break
+		}
+		if(file.hasExtension("t")) {
+			continue
+		}
+		var dest = outputDir.entry(file.baseName())
+		ctx.status(dest.getPath() .. " ..")
+		if(file.copyFileTo(dest) == false) {
+			ctx.error("Failed to copy file: `" .. dest.getPath() .. "'")
+			return(false)
+		}
+	}
+	ctx.status(null)
+	return(true)
+}

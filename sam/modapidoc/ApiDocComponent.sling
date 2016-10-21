@@ -1,0 +1,204 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is compiler.Component imports compiler imports ast imports cape:
+
+func prepareUsageInfo(info as UsageInfo) override
+{
+	info.addParameter("file", "Path to project file(s) or a .config file")
+	info.addOption("output", "directory", "Specify the output directory")
+	info.addOption("template", "directory", "Set or override the template directory")
+}
+
+func getDescription(ctx as compiler.RunContext) override as string
+{
+	return("Produce API documentation")
+}
+
+func doReadProject(ctx as RunContext, file as cape.File, featureManager as FeatureManager) as sam.sling.SlingProjectNode
+{
+	if(file == null) {
+		ctx.error("null file")
+		return(null)
+	}
+	var pi = featureManager.getProjectReaderForPath(ctx, file)
+	if(pi == null) {
+		ctx.error("Failed to find input filter for path: `" .. file.getPath() .. "'", null)
+		return(null)
+	}
+	var ec = ctx.getErrorCount()
+	var root = pi.readProject(ctx, file) as sam.sling.SlingProjectNode
+	if(root == null) {
+		if(ctx.getErrorCount() == ec) {
+			ctx.error("Failed to read input path: `" .. file.getPath() .. "'", null)
+		}
+		return(null)
+	}
+	if(root.executePreFilters(ctx, featureManager) == false) {
+		return(null)
+	}
+	return(root)
+}
+
+func processInclude(ctx as RunContext, includeFile as cape.File, root as SoftwareProjectNode, featureManager as FeatureManager) as bool
+{
+	ctx.debug("Including file: `" .. includeFile.getPath() .. "'")
+	var oo = doReadProject(ctx, includeFile, featureManager)
+	if(oo == null) {
+		return(false)
+	}
+	var oocode = oo.exportCode(ctx)
+	if(oocode == null) {
+		return(true)
+	}
+	var rootCode = root.getCode(ctx)
+	if(rootCode.merge(ctx, oocode) == false) {
+		return(false)
+	}
+	if(root.mergeResourcesFrom(ctx, oo) == false) {
+		return(false)
+	}
+	return(true)
+}
+
+func execute(ctx as compiler.RunContext, featureManager as FeatureManager, config as cape.DynamicMap, flags as vector<string>, options as vector<cape.KeyValuePair<string,string>>, parameters as vector<string>) override as bool
+{
+	var files = new vector<cape.File>
+	var output as cape.File
+	var template as cape.File
+	var configFile as cape.File
+	var config as DynamicMap
+	foreach(aa in flags) {
+		if(aa == "help" || aa == "h") {
+			printUsage(ctx)
+			return(true)
+		}
+		else {
+			ctx.error("Unknown flag: `" .. aa .. "'")
+			return(false)
+		}
+	}
+	foreach(option in options) {
+		var key = option.key
+		var value = option.value
+		if(key == "output") {
+			output = cape.FileInstance.forPath(value)
+		}
+		else if(key == "template") {
+			template = cape.FileInstance.forPath(value)
+		}
+		else {
+			ctx.error("Unknown option: `" .. key .. "'")
+			return(false)
+		}
+	}
+	foreach(parameter in parameters) {
+		files += cape.FileInstance.forPath(parameter)
+	}
+	if(cape.Vector.getSize(files) < 1) {
+		printUsage(ctx)
+		ctx.error("No input file specified")
+		return(false)
+	}
+	if(cape.Vector.getSize(files) == 1) {
+		var file = files[0]
+		if(file != null && file.hasExtension("config")) {
+			configFile = file
+			cape.Vector.clear(files)
+		}
+	}
+	if(output == null) {
+		printUsage(ctx)
+		ctx.error("No output directory specified. Use -output=.. to specify.")
+		return(false)
+	}
+	if(configFile != null) {
+		config = new DynamicMap()
+		if(ConfigFileParser.parseFile(ctx, configFile, config) == false) {
+			ctx.error("Failed to read configuration file: `" .. configFile.getPath() .. "'")
+			return(false)
+		}
+		if(template == null) {
+			var tf = config.getString("templateDirectory")
+			if(tf != null) {
+				template = cape.FileInstance.forRelativePath(tf, configFile.getParent())
+			}
+		}
+		var ffs = config.getDynamicVector("inputFiles")
+		if(ffs != null) {
+			foreach(fileName as string in ffs.toVector()) {
+				files += cape.FileInstance.forRelativePath(fileName, configFile.getParent())
+			}
+		}
+	}
+	if(template == null) {
+		printUsage(ctx)
+		ctx.error("No template directory specified. Use -template=.. to specify.")
+		return(false)
+	}
+	var project as sam.sling.SlingProjectNode
+	foreach(file in files) {
+		if(file.exists() == false) {
+			ctx.error("No such file or directory: `" .. file.getPath() .. "'", null)
+			return(false)
+		}
+		if(project == null) {
+			project = doReadProject(ctx, file, featureManager)
+			if(project == null) {
+				return(false)
+			}
+		}
+		else {
+			if(processInclude(ctx, file, project, featureManager) == false) {
+				return(false)
+			}
+		}
+	}
+	if(project == null) {
+		ctx.error("No input files were read.")
+		return(false)
+	}
+	var defines = eq.api.HashTable.create()
+	var v = new RecipeFilter()
+	v.addFilter(ctx, new coder.ExpandVariablesWithPropertyModifierFilter())
+	v.addFilter(ctx, sam.sling.SlingPreprocessorFilter.forDefines(ctx, defines))
+	v.addFilter(ctx, new sam.sling.EQ1AutomaticSubclassingFilter())
+	v.addFilter(ctx, new coder.DefaultVariableValuesFilter())
+	v.addFilter(ctx, new coder.ExpandInternalLiteralsFilter())
+	v.addFilter(ctx, new sam.sling.CheckSlingNamingConventionsFilter())
+	v.addFilter(ctx, new coder.ReduceToAPIFilter().setAllowUnresolvedSymbols(true).setAddExternModifiers(false))
+	if(v.execute(ctx, project.getCode(ctx)) == false) {
+		return(false)
+	}
+	var of = new HtmlApiDocOutput()
+	of.setOutputDir(ctx, output)
+	of.setTemplateDir(ctx, template)
+	of.setConfig(config)
+	if(of.execute(ctx, project, true) == false) {
+		ctx.error("Failed to output API documentation", project)
+		return(false)
+	}
+	ctx.info("Output: `" .. output.getPath() .. "'")
+	return(true)
+}

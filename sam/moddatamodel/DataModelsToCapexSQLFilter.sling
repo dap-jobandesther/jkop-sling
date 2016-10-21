@@ -1,0 +1,180 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+matchfilter imports ast imports compiler imports cape imports sam.sling:
+
+prop generateSQL = false
+prop generateHTTPServer = false
+prop generateHTTPClient = false
+
+rule
+{
+	match {
+		var classDecl = node as ClassDeclarationNode
+		if(classDecl == null) {
+			return(false)
+		}
+		if(CustomModifierNode.exists_in(ctx, classDecl, "dataModel") == false) {
+			return(false)
+		}
+	}
+	process(classDecl) {
+		var className = classDecl.getNodeName(ctx)
+		var onImportFunctionNames = new vector<string>
+		var onExportFunctionNames = new vector<string>
+		var primaryKeyName as string
+		var primaryKeyIsInteger = false
+		var dataFields = new vector<VariableDeclarationNode>
+		var sortColumns = new vector<capex.SQLOrderingRule>
+		foreach(node as FunctionDeclarationNode in classDecl.getNodes(ctx)) {
+			if(CustomModifierNode.exists_in(ctx, node, "onImport")) {
+				onImportFunctionNames += node.getNodeName(ctx)
+			}
+			if(CustomModifierNode.exists_in(ctx, node, "onExport")) {
+				onExportFunctionNames += node.getNodeName(ctx)
+			}
+		}
+		foreach(node as VariableDeclarationNode in classDecl.getNodes(ctx)) {
+			if(CustomModifierNode.exists_in(ctx, node, "primary")) {
+				if(primaryKeyName == null) {
+					primaryKeyName = eq.api.String.as_strptr(node.getName(ctx))
+					if(node.getType(ctx) is IntegerDataTypeNode) {
+						primaryKeyIsInteger = true
+					}
+				}
+			}
+			if(CustomModifierNode.exists_in(ctx, node, "dataField") == false) {
+				continue
+			}
+			if(CustomModifierNode.exists_in(ctx, node, "sortDesc")) {
+				sortColumns += capex.SQLOrderingRule.forDescending(eq.api.String.as_strptr(node.getName(ctx)))
+			}
+			if(CustomModifierNode.exists_in(ctx, node, "sortAsc")) {
+				sortColumns += capex.SQLOrderingRule.forAscending(eq.api.String.as_strptr(node.getName(ctx)))
+			}
+			dataFields += node
+		}
+
+		// Common functionality
+
+		{
+			var sb = new StringBuilder()
+			TEMPLATE("DataModelsCommonTemplate.sling.t", sb)
+			var code = sb.toString()
+			var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "DataModelsCommonTemplate.sling.t")
+			if(decls == null) {
+				ctx.error("Failed to parse the generated SQL code: DataModelsCommonTemplate (compiler internal error)", classDecl)
+				return(false)
+			}
+			new coder.RemoveCommentsFilter().execute(ctx, decls, false)
+			foreach(node as NodeObject in decls.exportNodes(ctx)) {
+				classDecl.addNode(ctx, node)
+			}
+			decls.destroy(ctx)
+		}
+
+		// SQL functionality (using Capex SQL API)
+
+		if(generateSQL) {
+			var queryFields as string
+			var qsb = new StringBuilder()
+			foreach(dataField in dataFields) {
+				if(CustomModifierNode.exists_in(ctx, dataField, "detail") == false) {
+					if(qsb.count() > 0) {
+						qsb.append(", ")
+					}
+					qsb.append('"')
+					qsb.append(eq.api.String.as_strptr(dataField.getName(ctx)))
+					qsb.append('"')
+				}
+				else {
+					CustomModifierNode.remove_from(ctx, dataField, "detail")
+				}
+			}
+			queryFields = qsb.toString()
+			var sb = new StringBuilder()
+			TEMPLATE("DataModelsToCapexSQLTemplate.sling.t", sb)
+			var code = sb.toString()
+			var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "DataModelsToCapexSQLTemplate.sling.t")
+			if(decls == null) {
+				ctx.error("Failed to parse the generated SQL code: DataModelsToCapexSQLTemplate (compiler internal error)", classDecl)
+				return(false)
+			}
+			new coder.RemoveCommentsFilter().execute(ctx, decls, false)
+			var newClass = ClassDeclarationNode.forName(ctx, "SQL")
+			newClass.addModifier(ctx, new PublicModifierNode())
+			newClass.addModifier(ctx, new StaticModifierNode())
+			foreach(node as NodeObject in decls.exportNodes(ctx)) {
+				newClass.addNode(ctx, node)
+			}
+			classDecl.addNode(ctx, newClass)
+			decls.destroy(ctx)
+		}
+
+		// Web API (using JKOP HTTP Server API)
+
+		if(generateHTTPServer) {
+			var sb = new StringBuilder()
+			TEMPLATE("DataModelsToHTTPServerHandlersTemplate.sling.t", sb)
+			var code = sb.toString()
+			var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "DataModelsToHTTPServerHandlersTemplate.sling.t")
+			if(decls == null) {
+				ctx.error("Failed to parse the generated SQL code: DataModelsToHTTPServerHandlersTemplate (compiler internal error)", classDecl)
+				return(false)
+			}
+			new coder.RemoveCommentsFilter().execute(ctx, decls, false)
+			var newClass = ClassDeclarationNode.forName(ctx, "HTTPServerRequestHandler")
+			newClass.addBaseTypeIs(ctx, CustomDataTypeNode.forName(ctx, "HTTPServerRequestHandlerMap"))
+			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "cape"))
+			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "capex"))
+			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "xnet"))
+			newClass.addModifier(ctx, new PublicModifierNode())
+			newClass.addModifier(ctx, new StaticModifierNode())
+			foreach(node as NodeObject in decls.exportNodes(ctx)) {
+				newClass.addNode(ctx, node)
+			}
+			classDecl.addNode(ctx, newClass)
+			decls.destroy(ctx)
+		}
+
+		// Web API client (using JKOP HTTP Client API)
+
+		if(generateHTTPClient) {
+		}
+
+		// Remove the custom modifiers
+
+		CustomModifierNode.remove_from(ctx, classDecl, "dataModel")
+		foreach(node as NodeObject in classDecl.getNodes(ctx)) {
+			CustomModifierNode.remove_from(ctx, node, "onImport")
+			CustomModifierNode.remove_from(ctx, node, "onExport")
+			CustomModifierNode.remove_from(ctx, node, "primary")
+			CustomModifierNode.remove_from(ctx, node, "dataField")
+			CustomModifierNode.remove_from(ctx, node, "sortDesc")
+			CustomModifierNode.remove_from(ctx, node, "sortAsc")
+		}
+
+		return(true);
+	}
+}

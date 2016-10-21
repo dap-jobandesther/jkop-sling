@@ -1,0 +1,198 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class imports cape:
+
+func stringAsPixels(value as string, dpi as int) as int
+{
+	return(forString(value).toPixels(dpi))
+}
+
+func forString(value as string) static as this
+{
+	var v = new this()
+	v.parse(value)
+	return(v)
+}
+
+func forPixels(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_PIXEL)
+	return(v)
+}
+
+func forMilliMeters(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_MILLIMETER)
+	return(v)
+}
+
+func forMicroMeters(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_MICROMETER)
+	return(v)
+}
+
+func forNanoMeters(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_NANOMETER)
+	return(v)
+}
+
+func forInches(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_INCH)
+	return(v)
+}
+
+func forPoints(value as double) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(UNIT_POINT)
+	return(v)
+}
+
+func forValue(value as double, unit as int) static as this
+{
+	var v = new this()
+	v.setValue(value)
+	v.setUnit(unit)
+	return(v)
+}
+
+func forStringAsPixels(value as string, dpi as int) static as this
+{
+	var v = new this()
+	v.parse(value)
+	v.setValue(v.toPixels(dpi))
+	v.setUnit(UNIT_PIXEL)
+	return(v)
+}
+
+const UNIT_PIXEL = 0
+const UNIT_MILLIMETER = 1
+const UNIT_MICROMETER = 2
+const UNIT_NANOMETER = 3
+const UNIT_INCH = 4
+const UNIT_POINT = 5
+
+prop value as double
+prop unit as int
+
+func parse(value as string) private
+{
+	if(value == null) {
+		this.value = 0
+		unit = UNIT_PIXEL
+		return
+	}
+	var i = 0
+	var n = 0
+	var it = String.iterate(value)
+	while(true) {
+		var c = it.getNextChar()
+		if(c < 1) {
+			break
+		}
+		else if(c >= '0' && c <= '9') {
+			i *= 10
+			i += c - '0' as int
+		}
+		else {
+			break
+		}
+		n++
+	}
+	this.value = i
+	var suffix = String.subString(value, n)
+	if(String.isEmpty(suffix)) {
+		unit = UNIT_POINT
+	}
+	else if(suffix == "px") {
+		unit = UNIT_PIXEL
+	}
+	else if(suffix == "mm") {
+		unit = UNIT_MILLIMETER
+	}
+	else if(suffix == "um") {
+		unit = UNIT_MICROMETER
+	}
+	else if(suffix == "nm") {
+		unit = UNIT_NANOMETER
+	}
+	else if(suffix == "in") {
+		unit = UNIT_INCH
+	}
+	else {
+		unit = UNIT_POINT
+	}
+}
+
+func toPixels(dpi as int) as int
+{
+	if(unit == UNIT_PIXEL) {
+		return(value)
+	}
+	if(unit == UNIT_MILLIMETER) {
+		var v = value * dpi / 25
+		if(value > 0 && v < 1) {
+			v = 1
+		}
+		return(v)
+	}
+	if(unit == UNIT_MICROMETER) {
+		var v = value * dpi / (25 * 1000)
+		if(value > 0 && v < 1) {
+			v = 1
+		}
+		return(v)
+	}
+	if(unit == UNIT_NANOMETER) {
+		var v = value * dpi / (25 * 1000 * 1000)
+		if(value > 0 && v < 1) {
+			v = 1
+		}
+		return(v)
+	}
+	if(unit == UNIT_INCH) {
+		var v = value * dpi
+		if(value > 0 && v < 1) {
+			v = 1
+		}
+		return(v)
+	}
+	return(0)
+}
+
