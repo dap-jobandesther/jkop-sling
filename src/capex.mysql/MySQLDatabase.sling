@@ -180,7 +180,7 @@ func columnToCreateString(cc as SQLTableColumnInfo) private as string
 		sb.append("TEXT");
 	}
 	else if(tt == SQLTableColumnInfo.TYPE_BLOB) {
-		sb.append("BLOB");
+		sb.append("LONGBLOB");
 	}
 	else if(tt == SQLTableColumnInfo.TYPE_DOUBLE) {
 		sb.append("REAL");
@@ -237,4 +237,5 @@ func prepareCreateIndexStatement(table as string, column as string, unique as bo
 	}
 	var sql = "CREATE " .. unq .. "INDEX " .. table .. "_" .. column .. " ON " .. table .. " (" .. column .. ")";
 	return(prepare(sql));
-} 
+}
+
