@@ -82,8 +82,10 @@ class DomElementSprite is Sprite
 			var rx = x * widthFactor
 			var ry = y * heightFactor
 			lang "js" {{{
-				this.element.style.left = ~~rx;
-				this.element.style.top = ~~ry;
+				if(this.element != null) {
+					this.element.style.left = ~~rx;
+					this.element.style.top = ~~ry;
+				}
 			}}}
 		}
 	}
