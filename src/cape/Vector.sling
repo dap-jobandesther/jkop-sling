@@ -24,28 +24,6 @@
 
 class:
 
-class MyVectorObject <T> is VectorObject<T> is ObjectWithSize private
-{
-	prop vector as vector<T>
-
-	func toVector as vector<T>
-	{
-		return(vector)
-	}
-
-	func getSize as int
-	{
-		return(Vector.getSize(vector))
-	}
-}
-
-func asObject <T> (vector as vector<T>) static as VectorObject<T>
-{
-	var v = new MyVectorObject<T>()
-	v.setVector(vector)
-	return(v)
-}
-
 func asVector <T> (obj as object) static as vector<T>
 {
 	var vo = obj as VectorObject<T>

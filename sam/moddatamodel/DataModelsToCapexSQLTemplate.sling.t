@@ -209,7 +209,7 @@ func insert(database as SQLDatabase, tableName as string, object as {%= classNam
 		}
 		var data = new DynamicMap()
 		object.exportData(data, false)
-		var stmt = database.prepareUpdateStatement(tableName, DynamicMap.forMap({ "{%= primaryKeyName %}" : String.asString(object.{%= StringUtil.combineCamelCase([ "get", primaryKeyName ]) %}()) }), data)
+		var stmt = database.prepareUpdateStatement(tableName, DynamicMap.forStringMap({ "{%= primaryKeyName %}" : String.asString(object.{%= StringUtil.combineCamelCase([ "get", primaryKeyName ]) %}()) }), data)
 		if(stmt == null) {
 			if(callback != null) {
 				callback(false)
@@ -352,7 +352,7 @@ func insert(database as SQLDatabase, tableName as string, object as {%= classNam
 						}
 						return
 					}
-					var stmt = database.prepareDeleteStatement(tableName, DynamicMap.forMap({ "{%= fieldName %}" : String.asString({%= fieldName %}) }))
+					var stmt = database.prepareDeleteStatement(tableName, DynamicMap.forStringMap({ "{%= fieldName %}" : String.asString({%= fieldName %}) }))
 					if(stmt == null) {
 						if(callback != null) {
 							callback(false)
