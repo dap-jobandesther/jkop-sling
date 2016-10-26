@@ -24,58 +24,118 @@
 
 class imports cape:
 
-prop name as string;
-prop compressedSize as int;
-prop uncompressedSize as int;
-prop isDirectory as bool;
+var name as string
+prop compressedSize as long
+prop uncompressedSize as long
+prop isDirectory as bool 
+
+func getName as string
+{
+	return(name)
+}
+
+func setName(newName as string) as this
+{
+	name = String.replace(newName, '\\', '/')
+	if(String.endsWith(name, "/")) {
+		isDirectory = true
+		name = String.getSubString(name, 0, String.getLength(name) - 1)
+	}
+	return(this)
+}
+
+func getContentReader virtual as Reader
+{
+	return(null)
+}
 
 func writeToFile(file as File) virtual as bool
 {
-	return(false);
+	if(file == null) {
+		return(false)
+	}
+	if(getIsDirectory()) {
+		return(file.createDirectoryRecursive())
+	}
+	var reader = getContentReader()
+	if(reader == null) {
+		return(false)
+	}
+	var fp = file.getParent()
+	if(fp != null) {
+		fp.createDirectoryRecursive()
+	}
+	var writer = file.write()
+	if(writer == null) {
+		if(reader is Closable) {
+			(reader as! Closable).close()
+		}
+		return(false)
+	}
+	var buf = MALLOC(4096 * 4)
+	var v = true
+	var n = 0
+	while((n = reader.read(buf)) > 0) {
+		var nr = writer.write(buf, n)
+		if(nr != n) {
+			v = false
+			break
+		}
+	}
+	if(v == false) {
+		file.remove()
+	}
+	if(reader != null && reader is Closable) {
+		(reader as! Closable).close()
+	}
+	if(writer != null && writer is Closable) {
+		(writer as! Closable).close()
+	}
+	return(v);
 }
 
 func writeToDir(dir as File, fullPath as bool = true, overwrite as bool = true) as File
 {
 	if(dir == null || name == null) {
-		return(null);
+		return(null)
 	}
-	var path as File;
+	var path as File
 	if(fullPath == false) {
-		var nn as string;
-		var r = String.lastIndexOf(name, '/');
+		var nn as string
+		var r = String.lastIndexOf(name, '/')
 		if(r < 1) {
-			nn = name;
+			nn = name
 		}
 		else {
-			nn = String.subString(name, r+1);
+			nn = String.subString(name, r+1)
 		}
 		if(nn == null || String.getLength(nn) < 1) {
-			return(null);
+			return(null)
 		}
-		path = dir.entry(nn);
+		path = dir.entry(nn)
 	}
 	else {
-		path = dir;
+		path = dir
 		foreach(x in String.split(name, '/')) {
 			if(x != null && String.getLength(x) > 0) {
-				path = path.entry(x);
+				path = path.entry(x)
 			}
 		}
-		var dd = path.getParent();
+		var dd = path.getParent()
 		if(dd.isDirectory() == false) {
-			dd.createDirectoryRecursive();
+			dd.createDirectoryRecursive()
 		}
 		if(dd.isDirectory() == false) {
-			return(null);
+			return(null)
 		}
 	}
 	if(overwrite == false) {
 		if(path.exists()) {
-			return(null);
+			return(null)
 		}
 	}
 	if(writeToFile(path) == false) {
-		return(null);
+		return(null)
 	}
-	return(path);
+	return(path)
 }

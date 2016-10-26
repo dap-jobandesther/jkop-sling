@@ -55,7 +55,7 @@ func doReadProject(ctx as RunContext, file as cape.File, featureManager as Featu
 		}
 		return(null)
 	}
-	if(root.executePreFilters(ctx, featureManager) == false) {
+	if(root.executePreFilters(ctx, featureManager, null) == false) {
 		return(null)
 	}
 	return(root)
@@ -82,7 +82,7 @@ func processInclude(ctx as RunContext, includeFile as cape.File, root as Softwar
 	return(true)
 }
 
-func execute(ctx as compiler.RunContext, featureManager as FeatureManager, config as cape.DynamicMap, flags as vector<string>, options as vector<cape.KeyValuePair<string,string>>, parameters as vector<string>) override as bool
+func execute(ctx as compiler.RunContext, featureManager as FeatureManager, flags as vector<string>, options as vector<cape.KeyValuePair<string,string>>, parameters as vector<string>) override as bool
 {
 	var files = new vector<cape.File>
 	var output as cape.File
@@ -135,7 +135,7 @@ func execute(ctx as compiler.RunContext, featureManager as FeatureManager, confi
 	}
 	if(configFile != null) {
 		config = new DynamicMap()
-		if(ConfigFileParser.parseFile(ctx, configFile, config) == false) {
+		if(ConfigFile.parseFile(ctx, configFile, config) == false) {
 			ctx.error("Failed to read configuration file: `" .. configFile.getPath() .. "'")
 			return(false)
 		}

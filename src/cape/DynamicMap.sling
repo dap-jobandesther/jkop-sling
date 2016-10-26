@@ -24,7 +24,40 @@
 
 class is Duplicateable is Iterateable<string>:
 
-func forMap(map as map<string,string>) static as this
+func asDynamicMap(object as object) static as this
+{
+	if(object == null) {
+		return(null)
+	}
+	if(object is this) {
+		return(object as! this)
+	}
+	if(object is map) {
+		return(forObjectMap(object as! map))
+	}
+	return(null)
+}
+
+func forObjectMap(map as map<object,object>) static as this
+{
+	var v = new this()
+	if(map != null) {
+		var it as Iterator<object> = Map.iterateKeys(map)
+		while(it != null) {
+			var key = it.next()
+			if(key == null) {
+				break
+			}
+			if(key is string == false) {
+				continue
+			}
+			v.set(key as! string, Map.getValue(map, key as! string))
+		}
+	}
+	return(v)
+}
+
+func forStringMap(map as map<string,string>) static as this
 {
 	var v = new this()
 	if(map != null) {

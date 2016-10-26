@@ -137,7 +137,7 @@ func toDynamicMap(ctx as RunContext, dataType as DataTypeNode, possibleParent as
 	v.set("display", sam.sling.SlingSourceOutput.dataTypeToString(ctx, dataType))
 	var rdt = dataType as ReferenceDataTypeNode
 	if(rdt != null) {
-		var ref = rdt.get_referenced_node(ctx.silent())
+		var ref = rdt.getReferencedNode(ctx.silent())
 		if(ref != null) {
 			if(ref == possibleParent) {
 				v.set("display", "this")
@@ -355,7 +355,6 @@ func setCommonValues(ctx as RunContext, map as DynamicMap)
 		name = "API Documentation"
 	}
 	if(cape.String.isEmpty(version)) {
-		var dateTime = DateTime.forNow()
 		version = DateTime.forNow().toStringDate(0 as char)
 	}
 	map.set("name", name)
