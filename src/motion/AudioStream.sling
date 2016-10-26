@@ -22,24 +22,13 @@
  * SOFTWARE.
  */
 
-class abstract imports cape:
+interface:
 
-func forApplication(context as ApplicationContext) static as this
-{
-	if(context == null) {
-		return(null)
-	}
-	IFDEF("target_android") {
-		return(AudioManagerForAndroid.forApplication(context as AndroidApplicationContext))
-	}
-	ELSE IFDEF("target_html") {
-		return(AudioManagerForHTML5.forApplication(context as ApplicationContext))
-	}
-	ELSE {
-		ERROR("Not implemented")
-		return(null)
-	}
-}
-
-func getClipForResource(id as string) abstract as AudioClip
-func getStreamForResource(id as string) abstract as AudioStream
+func play as bool
+func pause as bool
+func stop as bool
+func seek(sec as int) as bool
+func getCurrentTime as int
+func getDuration as int
+func setLooping(v as bool) as bool
+func setVolume(v as double) as bool
