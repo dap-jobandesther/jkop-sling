@@ -34,11 +34,10 @@ func query(method as string, url as string, requestHeaders as KeyValueList<strin
 		callback(null, null, null)
 		return
 	}
-	var req = new WebClientRequest().setMethod(method)
+	var req #used = new WebClientRequest().setMethod(method)
 		.setUrl(url)
 		.setRequestHeaders(requestHeaders)
 		.setBody(body)
-
 	lang "java" {{{
 		new WebClientTask(callback).execute(req);
 	}}}

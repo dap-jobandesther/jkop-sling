@@ -120,7 +120,7 @@ func getInt8(buffer as buffer #used, offset as long #used) static as uint8
 	ELSE IFDEF("target_objc") {
 		var v as uint8
 		lang "objc" {{{
-			[buffer getBytes:&v range:NSMakeRange(offset, 1)]
+			[buffer getBytes:&v range:NSMakeRange(offset, 1)];
 		}}}
 		return(v)
 	}
