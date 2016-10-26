@@ -1,0 +1,40 @@
+class is SpriteEntity is PointerListener imports motion imports cape:
+
+var movex as double
+var movey as double
+var speed = 10;
+var center as double
+
+func createSprite override as Sprite
+{
+	var txt = scene.createTextureForImageResource("runner")
+	var ref = layer.getReferenceWidth()
+	var runner = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * ref)
+	movex = 0.5
+	movey = 1.0
+	runner.move(movex, movey)
+	center = runner.getWidth() * 0.5
+	return(runner)
+}
+
+func onPointerEvent(event as PointerEvent) as bool
+{
+	if(event.isConsumed == false) {
+		if(event.action == PointerEvent.MOVE) {
+			movex -= (movex - event.getX() + center) / speed;
+			movey -= (movey - event.getY() + center) / speed;
+			sprite.move(movex, movey)
+		}
+	}
+	return(true)
+}
+
+func getRunnerX() as double
+{
+	return(sprite.getX())
+}
+
+func getRunnerY() as double
+{
+	return(sprite.getY())
+}

@@ -1,0 +1,31 @@
+class is SpriteSceneWithEntities imports cape imports cave imports motion #mainScene:
+
+var audioManager as AudioManager
+
+func initialize override
+{
+	base.initialize()
+	audioManager = AudioManager.forApplication(context)
+	addTextureSpriteForSize(createTextureForImageResource("wood"), getReferenceWidth(), getReferenceHeight())
+	var txt = createTextureForImageResource("poweredbyeqela")
+	var logo = SpriteUtil.addTextureSpriteForWidth(this, getLayer(), txt, 0.75)
+	logo.move(0.5 - logo.getWidth()/2, getReferenceHeight()/2 - logo.getHeight()/2)
+	var be = TextButtonEntity.forText("Start Game")
+	be.setBackgroundColor(Color.forRGBA(128, 255, 128))
+	be.setPressedColor(Color.forRGBA(80, 150, 80))
+	addEntity(be)
+	be.resize(0.9, be.getHeight())
+	be.move(0.5-be.getWidth()/2, getReferenceHeight() - be.getHeight()*1.25)
+	be.setClickHandler(func {
+		pushScene(new GameScene())
+	})
+	var ap = TextButtonEntity.forText("Test Audio")
+	ap.setBackgroundColor(Color.forRGBA(128, 255, 128))
+	ap.setPressedColor(Color.forRGBA(80, 150, 80))
+	addEntity(ap)
+	ap.resize(0.9, ap.getHeight())
+	ap.move(0.5-be.getWidth()/2, getReferenceHeight() - (be.getHeight()*1.25)*2)
+	ap.setClickHandler(func {
+		pushScene(new AudioTestScene())
+	})
+}

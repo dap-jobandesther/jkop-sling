@@ -31,7 +31,7 @@ class MyAudioClip is AudioClip is Runnable
 
 	func run
 	{
-		var sid as int
+		var sid as int #used
 		lang "java" {{{
 			sid = soundPool.play(soundId, 1, 1, 0, 0, 1);
 		}}}
@@ -40,6 +40,191 @@ class MyAudioClip is AudioClip is Runnable
 	func play as bool
 	{
 		return(Thread.start(this))
+	}
+}
+
+class MyAudioStream is AudioStream
+{
+	lang "java" {{{
+		android.media.MediaPlayer mp;
+	}}}
+
+	var resourceId as int #used
+	var prepared = false
+	var milli #used = 1000
+
+	ctor(activityContext as !"android.content.Context", id as string)
+	{
+		var rid #used = (activityContext.getPackageName() as! string) .. ":raw/" .. id
+		var resourceid as int #used
+		lang "java" {{{
+			android.content.res.Resources res = activityContext.getResources();
+			if(res != null) {
+				int aid = res.getIdentifier(rid, null, null);
+				if(aid > 0) {
+					mp = android.media.MediaPlayer.create(activityContext, aid);
+					resourceid = aid;
+				}
+			}
+		}}}
+	}
+
+	func play as bool
+	{
+		return(playback("play"))
+	}
+
+	func pause as bool
+	{
+		return(playback("pause"))
+	}
+
+	func stop as bool
+	{
+		return(playback("stop"))
+	}
+
+	func seek(sec as int) as bool
+	{
+		return(playback("seek", Integer.asObject(sec)))
+	}
+
+	func getCurrentTime as int
+	{
+		var ct as int
+		lang "java" {{{
+			if(mp != null) {
+				ct = mp.getCurrentPosition() / milli;
+			}
+		}}}
+		return(ct)
+	}
+
+	func getDuration as int
+	{
+		var n as int
+		lang "java" {{{
+			if(mp != null) {
+				n = (int)(mp.getDuration() / milli);
+			}
+		}}}
+		return(n)
+	}
+
+	func setLooping(v as bool) as bool
+	{
+		return(playback("loop", Boolean.asObject(v)))
+	}
+
+	func setVolume(v as double) as bool
+	{
+		var volume = v;
+		if(v > 1.0) {
+			volume = 1.0;
+		}
+		else if(v < 0) {
+			volume = 0.0;
+		}
+		return(playback("volume",  Double.asObject(volume)));
+	}
+
+	func playback(action as string, obj as object = null) as bool
+	{
+		lang "java" {{{
+			if(mp == null) {
+		}}}
+				return(false);
+		lang "java" {{{
+			}
+		}}}
+		if(String.equals("play", action)) {
+			if(!prepared) {
+				lang "java" {{{
+					try{
+						mp.prepareAsync();
+					}
+					catch(java.lang.IllegalStateException e) {
+						e.printStackTrace();
+					}
+				}}}
+				prepared = true;
+			}
+			lang "java" {{{
+				try{
+					mp.start();
+				}
+				catch(java.lang.IllegalStateException e) {
+					e.printStackTrace();
+				}
+			}}}
+		}
+		else if(String.equals("stop", action)) {
+			lang "java" {{{
+				try{
+					if(mp.isPlaying()) {
+						mp.seekTo(0);
+					}
+					mp.stop();
+				}
+				catch(java.lang.IllegalStateException e) {
+					e.printStackTrace();
+				}
+			}}}
+			prepared = false;
+		}
+		else if(String.equals("pause", action)) {
+			lang "java" {{{
+				try{
+					if(mp.isPlaying()) {
+						mp.pause();
+					}
+				}
+				catch(java.lang.IllegalStateException e) {
+					e.printStackTrace();
+				}
+			}}}
+		}
+		else if(String.equals("loop", action)) {
+			if(obj is BooleanObject) {
+				var v #used = Boolean.asBoolean(obj)
+				lang "java" {{{
+					mp.setLooping(v);
+				}}}
+			}
+		}
+		else if(String.equals("seek", action)) {
+			if(obj is IntegerObject) {
+				var sec #used = Integer.asInteger(obj)
+				lang "java" {{{
+					try{
+						if(prepared) {
+							mp.seekTo(sec * milli);
+						}
+					}
+					catch(java.lang.IllegalStateException e) {
+						e.printStackTrace();
+					}
+				}}}
+			}
+		}
+		else if(String.equals("volume", action)) {
+			if(obj is DoubleObject) {
+				var v #used = Double.asDouble(obj)
+				lang "java" {{{
+						mp.setVolume((float)v, (float)v);
+				}}}
+			}
+		}
+		return(true)
+	}
+
+	dtor
+	{
+		lang "java" {{{
+			if(mp != null) {
+				mp.release();
+			}
+		}}}
 	}
 }
 
@@ -115,4 +300,16 @@ func getClipForResource(id as string) override as AudioClip
 	v.setSoundPool(soundPool)
 	v.setSoundId(soundId)
 	return(v)
+}
+
+func getStreamForResource(id as string) override as AudioStream
+{
+	if(String.isEmpty(id)) {
+		return(null)
+	}
+	var activityContext = context.getAndroidActivityContext()
+	if(activityContext == null) {
+		return(null)
+	}
+	return(new MyAudioStream(activityContext, sanitizeResourceName(id)))
 }

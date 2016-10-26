@@ -1,0 +1,38 @@
+class is SpriteEntity imports motion imports cape:
+
+var movex as double
+var movey as double
+var speed = 250;
+var runner as Runner
+var images as vector<string>
+
+ctor
+{
+	images = new vector<string>
+	images += "monster1"
+	images += "monster2"
+	images += "monster3"
+	images += "monster4"
+	images += "monster5"
+}
+
+func createSprite override as Sprite
+{
+	var rndImage = new Random().nextInt(5)
+	var img as string= Vector.get(images, rndImage)
+	var txt = scene.createTextureForImageResource(img)
+	var ref = layer.getReferenceWidth()
+	var monster = SpriteUtil.addTextureSpriteForWidth(scene, layer, txt, 0.1 * ref)
+	movex = new Random().nextDouble()
+	movey = new Random().nextDouble()
+	monster.move(movex, movey)
+	var ms = scene as GameScene
+	runner = ms.getRunner()
+	return(monster)
+}
+
+func tick(gameTime as TimeValue, delta as double) override
+{
+	base.tick(gameTime, delta)
+	sprite.setRotation(sprite.getRotation() + delta * Math.M_PI)
+}
