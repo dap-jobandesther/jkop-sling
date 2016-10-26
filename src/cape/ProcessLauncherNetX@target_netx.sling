@@ -24,13 +24,13 @@
 
 class:
 
-class MyProcess is Process
+class MyProcess is Process is ProcessWithIO
 {
-	lang "cs" {{{
-		public System.Diagnostics.Process process = null;
-	}}}
-
+	var process public as !"System.Diagnostics.Process"
 	var exitCode = 0
+	var stdin as Writer
+	var stdout as Reader
+	var stderr as Reader
 
 	dtor
 	{
@@ -46,6 +46,42 @@ class MyProcess is Process
 				process = null;
 			}
 		}}}
+	}
+
+	func getStandardInput as Writer
+	{
+		if(stdin == null) {
+			var stream as !"System.IO.Stream"
+			lang "cs" {{{
+				stream = process.StandardInput.BaseStream;
+			}}}
+			stdin = DotNetStreamWriter.forStream(stream)
+		}
+		return(stdin)
+	}
+
+	func getStandardOutput as Reader
+	{
+		if(stdout == null) {
+			var stream as !"System.IO.Stream"
+			lang "cs" {{{
+				stream = process.StandardOutput.BaseStream;
+			}}}
+			stdout = DotNetStreamReader.forStream(stream)
+		}
+		return(stdout)
+	}
+
+	func getStandardError as Reader
+	{
+		if(stderr == null) {
+			var stream as !"System.IO.Stream"
+			lang "cs" {{{
+				stream = process.StandardError.BaseStream;
+			}}}
+			stderr = DotNetStreamReader.forStream(stream)
+		}
+		return(stderr)
 	}
 
 	func getId as string
@@ -139,21 +175,10 @@ class MyProcess is Process
 	}
 }
 
-func startProcess(launcher as ProcessLauncher, wait as bool, listener as ProcessLauncherListener, pipeHandler as BufferDataReceiver, errorBuffer as StringBuilder) static as Process
+func startProcess(launcher as ProcessLauncher, wait as bool, pipeHandler as BufferDataReceiver, withIO as bool, errorBuffer as StringBuilder) static as Process
 {
 	var ff = launcher.getFile()
 	if(ff == null) {
-		var cmd = launcher.getCommand()
-		if(cmd != null) {
-			ff = Environment.findCommand(cmd)
-			if(ff == null) {
-				// Log.error("Failed to find command: `%s'".printf().add(cmd), logger)
-				return(null)
-			}
-		}
-	}
-	if(ff == null) {
-		// Log.error("No command or file specified for ProcessLauncher", logger)
 		return(null)
 	}
 	var sb = new StringBuilder()
@@ -180,7 +205,12 @@ func startProcess(launcher as ProcessLauncher, wait as bool, listener as Process
 		pi.CreateNoWindow = true;
 		pi.UseShellExecute = false;
 		pi.FileName = ff.getPath();
-		if(pipeHandler != null) {
+		if(withIO) {
+			pi.RedirectStandardOutput = true;
+			pi.RedirectStandardError = true;
+			pi.RedirectStandardInput = true;
+		}
+		else if(pipeHandler != null) {
 			pi.RedirectStandardOutput = true;
 			pi.RedirectStandardError = true;
 		}

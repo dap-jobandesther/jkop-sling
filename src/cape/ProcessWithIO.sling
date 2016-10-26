@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
-interface:
+interface is Process:
 
-func onProcessLaunched(process as Process)
+func getStandardInput as Writer
+func getStandardOutput as Reader
+func getStandardError as Reader
