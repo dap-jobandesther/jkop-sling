@@ -71,25 +71,18 @@ func onTimeSecondsChanged(seconds as long #used)
 		}}}
 	}
 	ELSE IFDEF("target_java") {
-		/* FIXME
-			embed "java" {{{
-				java.util.TimeZone tz = java.util.TimeZone.getDefault();
-				if(utc == true) {
-					tz = java.util.TimeZone.getTimeZone("UTC");
-				}
-				java.util.Calendar cal = java.util.Calendar.getInstance();
-				cal.setTimeZone(tz);
-				cal.setTimeInMillis(seconds*1000);
-				dday = cal.get(java.util.Calendar.DAY_OF_MONTH);
-				dmonth = cal.get(java.util.Calendar.MONTH) + 1;
-				dyear = cal.get(java.util.Calendar.YEAR);
-				dwday = cal.get(java.util.Calendar.DAY_OF_WEEK);
-				dhours = cal.get(java.util.Calendar.HOUR_OF_DAY);
-				dmins = cal.get(java.util.Calendar.MINUTE);
-				dseconds = cal.get(java.util.Calendar.SECOND);
-			}}}
-		*/
-		ERROR("Not implemented.")
+		lang "java" {{{
+			java.util.TimeZone tz = java.util.TimeZone.getDefault();
+			java.util.Calendar cal = java.util.Calendar.getInstance(tz);
+			cal.setTimeInMillis(seconds*1000);
+			setDayOfMonth(cal.get(java.util.Calendar.DAY_OF_MONTH));
+			setMonth(cal.get(java.util.Calendar.MONTH) + 1);
+			setYear(cal.get(java.util.Calendar.YEAR));
+			setWeekDay(cal.get(java.util.Calendar.DAY_OF_WEEK));
+			setHours(cal.get(java.util.Calendar.HOUR_OF_DAY));
+			setMinutes(cal.get(java.util.Calendar.MINUTE));
+			setSeconds(cal.get(java.util.Calendar.SECOND));
+		}}}
 	}
 	ELSE IFDEF("target_js") {
 		lang "js" {{{
