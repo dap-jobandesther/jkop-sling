@@ -137,7 +137,7 @@ class MyAudioStream is AudioStream
 		lang "java" {{{
 			}
 		}}}
-		if(String.equals("play", action)) {
+		if(action == "play") {
 			if(!prepared) {
 				lang "java" {{{
 					try{
@@ -158,7 +158,7 @@ class MyAudioStream is AudioStream
 				}
 			}}}
 		}
-		else if(String.equals("stop", action)) {
+		else if(action == "stop") {
 			lang "java" {{{
 				try{
 					if(mp.isPlaying()) {
@@ -172,7 +172,7 @@ class MyAudioStream is AudioStream
 			}}}
 			prepared = false;
 		}
-		else if(String.equals("pause", action)) {
+		else if(action == "pause") {
 			lang "java" {{{
 				try{
 					if(mp.isPlaying()) {
@@ -184,7 +184,7 @@ class MyAudioStream is AudioStream
 				}
 			}}}
 		}
-		else if(String.equals("loop", action)) {
+		else if(action == "loop") {
 			if(obj is BooleanObject) {
 				var v #used = Boolean.asBoolean(obj)
 				lang "java" {{{
@@ -192,7 +192,7 @@ class MyAudioStream is AudioStream
 				}}}
 			}
 		}
-		else if(String.equals("seek", action)) {
+		else if(action == "seek") {
 			if(obj is IntegerObject) {
 				var sec #used = Integer.asInteger(obj)
 				lang "java" {{{
@@ -207,7 +207,7 @@ class MyAudioStream is AudioStream
 				}}}
 			}
 		}
-		else if(String.equals("volume", action)) {
+		else if(action == "volume") {
 			if(obj is DoubleObject) {
 				var v #used = Double.asDouble(obj)
 				lang "java" {{{
