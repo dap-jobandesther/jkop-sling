@@ -61,7 +61,7 @@ func initializeTables as bool
 	var content = SQLTableInfo.forName(getTableName("content"));
 	content.addStringKeyColumn("id")
 	content.addStringColumn("type")
-	content.addStringColumn("data")
+	content.addTextColumn("data")
 	content.addUniqueIndex("id")
 	if(database.ensureTableExists(content) == false) {
 		return(false)
