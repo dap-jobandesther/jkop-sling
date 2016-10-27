@@ -44,10 +44,6 @@ func remove() virtual abstract as bool
 func compareModificationTime(bf as File) virtual abstract as int
 func directoryName virtual abstract as string
 func isIdentical(file as File) virtual abstract as bool
-func getContentsBuffer virtual abstract as buffer
-func getContentsString(encoding as string) virtual abstract as string
-func setContentsBuffer(buf as buffer) virtual abstract as bool
-func setContentsString(str as string, encoding as string) virtual abstract as bool
 // FIXME #public #virtual #abstract Iterator lines()
 func makeExecutable virtual abstract as bool
 func isNewerThan(bf as File) virtual abstract as bool
@@ -296,4 +292,51 @@ func copyFileTo(dest as File) as bool
 		(writer as! Closable).close()
 	}
 	return(v)
+}
+
+func setContentsString(str as string, encoding as string) virtual as bool
+{
+	if(String.isEmpty(encoding)) {
+		return(false)
+	}
+	return(setContentsBuffer(String.toBuffer(str, encoding)))
+}
+
+func setContentsBuffer(buffer as buffer) virtual as bool
+{
+	if(buffer == null) {
+		return(false)
+	}
+	var writer = write()
+	if(writer == null) {
+		return(false)
+	}
+	if(writer.write(buffer, SIZE(buffer)) < 0) {
+		return(false)
+	}
+	writer.close()
+	return(true)
+}
+
+func getContentsString(encoding as string) virtual as string
+{
+	if(String.isEmpty(encoding)) {
+		return(null)
+	}
+	return(String.forBuffer(getContentsBuffer(), encoding))
+}
+
+func getContentsBuffer virtual as buffer
+{
+	var reader = read()
+	if(reader == null) {
+		return(null)
+	}
+	var sz = reader.getSize()
+	var b = MALLOC(sz)
+	if(reader.read(b) < sz) {
+		return(null)
+	}
+	reader.close()
+	return(b)
 }

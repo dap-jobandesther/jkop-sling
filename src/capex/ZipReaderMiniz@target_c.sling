@@ -26,39 +26,39 @@ class is ZipReader:
 
 lang "c" {{{
 	#define MINIZ_HEADER_FILE_ONLY
-	#include "miniz.c"
+	#include "ZipReaderMiniz.inc.c"
 }}}
 
-prop file as File;
-prop zip as ptr;
+prop file as File
+prop zip as ptr
 
 dtor
 {
-	close();
+	close()
 }
 
 func initialize as this
 {
 	if(file == null) {
-		return(null);
+		return(null)
 	}
-	var fp = file.get_native_path();
+	var fp = file.get_native_path()
 	if(String.is_empty(fp)) {
-		return(null);
+		return(null)
 	}
-	var fps = fp.to_strptr();
+	var fps = fp.to_strptr()
 	if(fps == null) {
-		return(null);
+		return(null)
 	}
-	var zp as ptr;
+	var zp as ptr
 	lang "c" {{{
 		mz_zip_archive* zipp = (mz_zip_archive*)malloc(sizeof(mz_zip_archive));
 		zp = zipp;
 	}}}
 	if(zp == null) {
-		return(null);
+		return(null)
 	}
-	var err = false;
+	var err = false
 	lang "c" {{{
 		memset(zipp, 0, sizeof(mz_zip_archive));
 		if(mz_zip_reader_init_file(zipp, fps, 0) == MZ_FALSE) {
@@ -69,108 +69,99 @@ func initialize as this
 		lang "c" {{{
 			free(zipp);
 		}}}
-		return(null);
+		return(null)
 	}
-	this.zip = zp;
-	return(this);
+	this.zip = zp
+	return(this)
 }
 
 func close as bool
 {
-	var zp = zip;
+	var zp = zip
 	if(zp == null) {
-		return(true);
+		return(true)
 	}
-	this.zip = null;
-	var err = false;
+	this.zip = null
+	var err = false
 	lang "c" {{{
 		if(mz_zip_reader_end((mz_zip_archive*)zp) == MZ_FALSE) {
 			err = MZ_TRUE;
 		}
 		free(zp);
 	}}}
-	return(!err);
+	return(!err)
 }
 
 class MyZipReaderEntry is ZipReaderEntry
 {
-	prop reader as MinizReader;
-	prop index as int;
+	prop reader as MinizReader
+	prop index as int
 
 	func writeToFile(file as File) override as bool
 	{
 		if(file == null) {
-			return(false);
+			return(false)
 		}
 		if(getIsDirectory()) {
-			return(file.createDirectoryRecursive());
+			return(file.createDirectoryRecursive())
 		}
 		if(reader == null) {
-			return(false);
+			return(false)
 		}
-		var zp = reader.getZip();
+		var zp = reader.getZip()
 		if(zp == null) {
-			return(false);
+			return(false)
 		}
-		var dstf = file.getPath();
+		var dstf = file.getPath()
 		if(dstf == null) {
-			return(false);
+			return(false)
 		}
-		var v as bool;
-		var idx = index;
+		var v as bool
+		var idx = index
 		lang "c" {{{
 			v = mz_zip_reader_extract_to_file((mz_zip_archive*)zp, idx, dstf, 0);
 		}}}
-		return(v);
+		return(v)
 	}
 }
 
 func getEntries as vector<ZipReaderEntry>
 {
-	var zp = zip;
+	var zp = zip
 	if(zp == null) {
-		return(null);
+		return(null)
 	}
-	var c as int;
+	var c as int
 	lang "c" {{{
 		c = (int)mz_zip_reader_get_num_files((mz_zip_archive*)zp);
 	}}}
 	if(c < 1) {
-		return(null);
+		return(null)
 	}
-	var v = new vector<ZipReaderEntry>;
-	var n as int;
+	var v = new vector<ZipReaderEntry>
+	var n as int
 	lang "c" {{{
 		mz_zip_archive_file_stat stat;
 	}}}
 	for(n=0; n<c; n++) {
-		var filename as ptr;
-		var compsize as int;
-		var uncompsize as int;
+		var filename as ptr
+		var compsize as int
+		var uncompsize as int
 		lang "c" {{{
 			if(mz_zip_reader_file_stat((mz_zip_archive*)zp, n, &stat) == MZ_FALSE) {
-				continue;
+				continue
 			}
-			filename = stat.m_filename;
-			compsize = stat.m_comp_size;
-			uncompsize = stat.m_uncomp_size;
+			filename = stat.m_filename
+			compsize = stat.m_comp_size
+			uncompsize = stat.m_uncomp_size
 		}}}
-		var e = new MyZipReaderEntry();
-		e.setReader(this);
-		e.setIndex(n);
-		var nx = filename;
-		nx = String.replace(nx, '\\', '/');
-		if(String.startsWith(nx ,"/")) {
-			e.setName(String.subString(nx, 0, String.getLength(nx)-1));
-			e.setIsDirectory(true);
-		}
-		else {
-			e.setName(nx);
-			e.setIsDirectory(false);
-		}
-		e.setCompressedSize(compsize);
-		e.setUncompressedSize(uncompsize);
-		v += e;
+		var e = new MyZipReaderEntry()
+		e.setReader(this)
+		e.setIndex(n)
+		e.setName(filename)
+		e.setCompressedSize(compsize)
+		e.setUncompressedSize(uncompsize)
+		v += e
 	}
-	return(v);
+	return(v)
 }

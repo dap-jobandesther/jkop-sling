@@ -317,7 +317,7 @@ func read override as FileReader
 	return(v.initialize())
 }
 
-func write override  as FileWriter
+func write override as FileWriter
 {
 	var v = new MyFileWriter()
 	lang "java" {{{
@@ -370,10 +370,6 @@ func removeRecursive override stub as bool
 func compareModificationTime(bf as File) override stub as int
 func directoryName override stub as string
 func isIdentical(file as File) override stub as bool
-func getContentsBuffer override stub as buffer
-func getContentsString(encoding as string) override stub as string
-func setContentsBuffer(buf as buffer) override stub as bool
-func setContentsString(str as string, encoding as string) override stub as bool
 func writeFromReader(reader as Reader, append as bool) override stub as bool
 func makeExecutable override stub as bool
 func isNewerThan(bf as File) override stub as bool

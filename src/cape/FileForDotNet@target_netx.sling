@@ -24,10 +24,8 @@
 
 class is FileAdapter private:
 
-class MyFileReader is FileReader is SizedReader is Reader is Closable is SeekableReader
+class MyFileReader is DotNetStreamReader
 {
-	var stream as !"System.IO.FileStream"
-
 	func initialize(file as string) as bool
 	{
 		if(file == null) {
@@ -36,75 +34,15 @@ class MyFileReader is FileReader is SizedReader is Reader is Closable is Seekabl
 		var v = true
 		lang "cs" {{{
 			try {
-				stream = System.IO.File.OpenRead(file);
+				setStream(System.IO.File.OpenRead(file));
 			}
 			catch(System.Exception e) {
 				// System.Console.WriteLine(e.ToString());
-				stream = null;
+				setStream(null);
 				v = false;
 			}
 		}}}
 		return(v)
-	}
-
-	func read(buf as buffer) as int
-	{
-		if(buf == null) {
-			return(0)
-		}
-		var mb #used = lang "cs" int {{{ buf.Length }}}
-		var v = 0
-		lang "cs" {{{
-			try {
-				v = stream.Read(buf, 0, mb);
-			}
-			catch(System.Exception e) {
-				// System.Console.WriteLine(e.ToString());
-				v = -1;
-			}
-		}}}
-		if(v < 1) {
-			lang "cs" {{{
-				stream.Close();
-			}}}
-		}
-		return(v)
-	}
-
-	func setCurrentPosition(n as int64) as bool
-	{
-		var v = false
-		lang "cs" {{{
-			var np = stream.Seek(n, System.IO.SeekOrigin.Begin);
-			if(np == n) {
-				v = true;
-			}
-		}}}
-		return(v)
-	}
-
-	func getCurrentPosition as int64
-	{
-		return(lang "cs" int64 {{{ stream.Position }}})
-	}
-
-	func getSize as int
-	{
-		var v as int
-		lang "cs" {{{
-			v = (int)stream.Length;
-		}}}
-		return(v)
-	}
-
-	func close
-	{
-		lang "cs" {{{
-			if(stream != null) {
-				stream.Close();
-				stream = null;
-			}
-		}}}
 	}
 }
 

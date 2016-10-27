@@ -261,6 +261,4 @@ func getContentsString(encoding as string) override as string
 	return(String.forBuffer(b, encoding))
 }
 
-func setContentsBuffer(buffer as buffer) override stub as bool
-func setContentsString(string as string, encoding as string) override stub as bool
 // FIXME func lines override stub as Iterator
