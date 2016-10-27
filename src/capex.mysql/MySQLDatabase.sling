@@ -186,7 +186,7 @@ func columnToCreateString(cc as SQLTableColumnInfo) private as string
 		sb.append("REAL");
 	}
 	else {
-		Log.error(getLogger(), "Unknown column type: " .. tt)
+		Log.error(getLogger(), "Unknown column type: " .. String.forInteger(tt))
 		sb.append("UNKNOWN");
 	}
 	return(sb.toString());

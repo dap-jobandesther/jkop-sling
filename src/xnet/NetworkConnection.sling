@@ -66,7 +66,7 @@ func getRemoteAddress as string
 	if(remoteAddress == null) {
 		var ts = socket as TCPSocket;
 		if(ts != null) {
-			remoteAddress = ts.getRemoteAddress() .. ":" .. ts.getRemotePort();
+			remoteAddress = ts.getRemoteAddress() .. ":" .. String.forInteger(ts.getRemotePort());
 		}
 	}
 	return(remoteAddress);
@@ -74,12 +74,12 @@ func getRemoteAddress as string
 
 func logDebug(text as string)
 {
-	Log.debug(logContext, "[Connection:" .. getId() .. "] " .. text);
+	Log.debug(logContext, "[Connection:" .. String.forInteger(getId()) .. "] " .. text);
 }
 
 func logError(text as string)
 {
-	Log.error(logContext, "[Connection:" .. getId() .. "] " .. text);
+	Log.error(logContext, "[Connection:" .. String.forInteger(getId()) .. "] " .. text);
 }
 
 func onActivity

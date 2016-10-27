@@ -58,11 +58,11 @@ func onRequestHandled(request as HTTPServerRequest, resp as HTTPServerResponse, 
 	if(String.isEmpty(rf)) {
 		rf = "-";
 	}
-	var logLine = remoteAddress .. " " .. username .. " " .. sessionid .. " [" .. logTime .. "] \"" .. request.getMethod() .. " " .. request.getURLPath() .. " " .. request.getVersion() .. "\" " .. resp.getStatus() .. " " .. written .. " \"" .. rf .. "\" \"" .. request.getHeader("user-agent") .. "\"";
+	var logLine = remoteAddress .. " " .. username .. " " .. sessionid .. " [" .. logTime .. "] \"" .. request.getMethod() .. " " .. request.getURLPath() .. " " .. request.getVersion() .. "\" " .. resp.getStatus() .. " " .. String.forInteger(written) .. " \"" .. rf .. "\" \"" .. request.getHeader("user-agent") .. "\"";
 	if(logdir != null) {
 		var logidname as string;
 		if(dt != null) {
-			logidname = "accesslog_" .. dt.getYear() .. dt.getMonth() .. dt.getDayOfMonth() .. ".log";
+			logidname = "accesslog_" .. String.forInteger(dt.getYear()) .. String.forInteger(dt.getMonth()) .. String.forInteger(dt.getDayOfMonth()) .. ".log";
 		}
 		else {
 			logidname = "accesslog.log";
