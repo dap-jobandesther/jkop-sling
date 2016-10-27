@@ -74,16 +74,13 @@ class MyReader is FileReader is Reader is SizedReader is Closable is SeekableRea
 		return(v)
 	}
 
-	func read(buf as buffer, maxBytes as int) as int
+	func read(buf as buffer) as int
 	{
 		if(buf == null || handle == null) {
 			return(0)
 		}
 		var data as buffer
-		var mx = maxBytes
-		if(mx < 1) {
-			mx = lang "objc" int {{{ [buf length] }}}
-		}
+		var mx #used = lang "objc" int {{{ [buf length] }}}
 		lang "objc" {{{
 			data = [handle readDataOfLength:mx];
 		}}}

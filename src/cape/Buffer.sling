@@ -88,9 +88,9 @@ func toInt8Array(buf as buffer) static as int8[]
 	}
 }
 
-func getSubBuffer(buffer as buffer, offset as long, size as long) static as buffer
+func getSubBuffer(buffer as buffer, offset as long, size as long, alwaysNewBuffer as bool = false) static as buffer
 {
-	if(offset == 0 && size < 0) {
+	if(alwaysNewBuffer == false && offset == 0 && size < 0) {
 		return(buffer)
 	}
 	var bsz = getSize(buffer)
@@ -98,10 +98,13 @@ func getSubBuffer(buffer as buffer, offset as long, size as long) static as buff
 	if(sz < 0) {
 		sz = bsz - offset
 	}
-	if(offset == 0 && sz == bsz) {
+	if(alwaysNewBuffer == false && offset == 0 && sz == bsz) {
 		return(buffer)
 	}
-	var v = MALLOC(size)
+	if(sz < 1) {
+		return(null)
+	}
+	var v = MALLOC(sz)
 	copyFrom(v, buffer, offset, 0, sz)
 	return(v)
 }
@@ -117,7 +120,7 @@ func getInt8(buffer as buffer #used, offset as long #used) static as uint8
 	ELSE IFDEF("target_objc") {
 		var v as uint8
 		lang "objc" {{{
-			[buffer getBytes:&v range:NSMakeRange(offset, 1)]
+			[buffer getBytes:&v range:NSMakeRange(offset, 1)];
 		}}}
 		return(v)
 	}

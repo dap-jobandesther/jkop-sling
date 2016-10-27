@@ -62,7 +62,7 @@ func forFile(file as File, allowCreate as bool = true, logger as LoggingContext 
 		var pp = file.getParent();
 		if(pp.isDirectory() == false) {
 			if(pp.createDirectoryRecursive() == false) {
-				Log.error(v.getLogger() as LoggingContext, "Failed to create directory: " .. pp)
+				Log.error(v.getLogger() as LoggingContext, "Failed to create directory: " .. pp.getPath())
 			}
 		}
 		if(v.initialize(file, true) == false) {
@@ -178,7 +178,7 @@ func columnToCreateString(cc as SQLTableColumnInfo) virtual as string
 		sb.append("REAL")
 	}
 	else {
-		Log.error(getLogger(), "Unknown column type: " .. tt)
+		Log.error(getLogger(), "Unknown column type: " .. String.forInteger(tt))
 		sb.append("UNKNOWN")
 	}
 	return(sb.toString())

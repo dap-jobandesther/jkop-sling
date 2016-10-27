@@ -22,52 +22,92 @@
  * SOFTWARE.
  */
 
-class is NetworkConnectionManager abstract imports cape:
+class is Writer is PrintWriter is Closable is SeekableWriter is FlushableWriter:
 
-prop port as int
-var socket as TCPSocket
-var esocket as IOManagerEntry
-
-func initialize override as bool
+func forStream(stream as !"System.IO.Stream") static as this
 {
-	if(base.initialize() == false) {
+	var v = new this()
+	v.setStream(stream)
+	return(v)
+}
+
+prop stream as !"System.IO.Stream"
+
+func write(buf as buffer, size as int) as int
+{
+	if(buf == null) {
+		return(0)
+	}
+	var sz = size
+	if(sz < 1) {
+		sz = Buffer.getSize(buf)
+	}
+	lang "cs" {{{
+		try {
+			stream.Write(buf, 0, sz);
+		}
+		catch(System.Exception e) {
+			// System.Console.WriteLine(e.ToString());
+			sz = -1;
+		}
+	}}}
+	return(sz)
+}
+
+func print(str as string) as bool
+{
+	if(str == null) {
 		return(false)
 	}
-	socket = TCPSocket.createAndListen(port)
-	if(socket == null) {
-		Log.error(logContext, "Failed to listen on TCP port " .. String.forInteger(port))
-		cleanup()
+	if(stream == null) {
 		return(false)
 	}
-	esocket = ioManager.addWithReadListener(socket, onIncomingConnection)
-	if(esocket == null) {
-		Log.error(logContext, "Failed to register with event loop")
-		cleanup()
+	var buffer = String.toUTF8Buffer(str)
+	if(buffer == null) {
 		return(false)
 	}
-	Log.info(logContext, "TCP server initialized, listening on port " .. String.forInteger(port))
+	var sz = SIZE(buffer)
+	if(write(buffer, -1) != sz) {
+		return(false)
+	}
 	return(true)
 }
 
-func cleanup override
+func println(str as string) as bool
 {
-	if(esocket != null) {
-		esocket.remove()
-		esocket = null
-	}
-	if(socket != null) {
-		socket.close()
-		socket = null
-	}
-	base.cleanup()
+	return(print(str .. "\n"))
 }
 
-func onIncomingConnection private
+func setCurrentPosition(n as int64) as bool
 {
-	var nn = socket.accept()
-	if(nn == null) {
-		Log.error(logContext, "Failed to accept an incoming client.")
-		return
-	}
-	onNewSocket(nn)
+	var v = false
+	lang "cs" {{{
+		var np = stream.Seek(n, System.IO.SeekOrigin.Begin);
+		if(np == n) {
+			v = true;
+		}
+	}}}
+	return(v)
+}
+
+func getCurrentPosition as int64
+{
+	return(lang "cs" int64 {{{ stream.Position }}})
+}
+
+func flush
+{
+	lang "cs" {{{
+		stream.Flush();
+	}}}
+}
+
+func close
+{
+	lang "cs" {{{
+		if(stream != null) {
+			stream.Close();
+			stream = null;
+		}
+	}}}
 }

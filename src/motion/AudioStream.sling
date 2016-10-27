@@ -24,4 +24,11 @@
 
 interface:
 
-func onProcessLaunched(process as Process)
+func play as bool
+func pause as bool
+func stop as bool
+func seek(sec as int) as bool
+func getCurrentTime as int
+func getDuration as int
+func setLooping(v as bool) as bool
+func setVolume(v as double) as bool

@@ -32,6 +32,9 @@ func forApplication(context as ApplicationContext) static as this
 	IFDEF("target_android") {
 		return(AudioManagerForAndroid.forApplication(context as AndroidApplicationContext))
 	}
+	ELSE IFDEF("target_html") {
+		return(AudioManagerForHTML5.forApplication(context as ApplicationContext))
+	}
 	ELSE {
 		ERROR("Not implemented")
 		return(null)
@@ -39,3 +42,4 @@ func forApplication(context as ApplicationContext) static as this
 }
 
 func getClipForResource(id as string) abstract as AudioClip
+func getStreamForResource(id as string) abstract as AudioStream

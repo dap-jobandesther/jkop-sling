@@ -46,10 +46,9 @@ class MyFileReader is DotNetStreamReader
 	}
 }
 
-class MyFileWriter is FileWriter is Writer is PrintWriter is Closable is SeekableWriter is FlushableWriter
+class MyFileWriter is FileWriter is DotNetStreamWriter
 {
 	prop append as bool
-	var stream as !"System.IO.FileStream"
 
 	func initialize(file as string) as bool
 	{
@@ -60,98 +59,19 @@ class MyFileWriter is FileWriter is Writer is PrintWriter is Closable is Seekabl
 		lang "cs" {{{
 			try {
 				if(append) {
-					stream = System.IO.File.Open(file, System.IO.FileMode.Append);
+					setStream(System.IO.File.Open(file, System.IO.FileMode.Append));
 				}
 				else {
-					stream = System.IO.File.Open(file, System.IO.FileMode.Create);
+					setStream(System.IO.File.Open(file, System.IO.FileMode.Create));
 				}
 			}
 			catch(System.Exception e) {
 				// System.Console.WriteLine(e.ToString());
-				stream = null;
+				setStream(null);
 				v = false;
 			}
 		}}}
 		return(v)
-	}
-
-	func write(buf as buffer, size as int) as int
-	{
-		if(buf == null) {
-			return(0)
-		}
-		var sz = size
-		if(sz < 1) {
-			sz = Buffer.getSize(buf)
-		}
-		lang "cs" {{{
-			try {
-				stream.Write(buf, 0, sz);
-			}
-			catch(System.Exception e) {
-				// System.Console.WriteLine(e.ToString());
-				sz = -1;
-			}
-		}}}
-		return(sz)
-	}
-
-	func print(str as string) as bool
-	{
-		if(str == null) {
-			return(false)
-		}
-		if(stream == null) {
-			return(false)
-		}
-		var buffer = String.toUTF8Buffer(str)
-		if(buffer == null) {
-			return(false)
-		}
-		var sz = SIZE(buffer)
-		if(write(buffer, -1) != sz) {
-			return(false)
-		}
-		return(true)
-	}
-
-	func println(str as string) as bool
-	{
-		return(print(str .. "\n"))
-	}
-
-	func setCurrentPosition(n as int64) as bool
-	{
-		var v = false
-		lang "cs" {{{
-			var np = stream.Seek(n, System.IO.SeekOrigin.Begin);
-			if(np == n) {
-				v = true;
-			}
-		}}}
-		return(v)
-	}
-
-	func getCurrentPosition as int64
-	{
-		return(lang "cs" int64 {{{ stream.Position }}})
-	}
-
-	func flush
-	{
-		lang "cs" {{{
-			stream.Flush();
-		}}}
-	}
-
-	func close
-	{
-		lang "cs" {{{
-			if(stream != null) {
-				stream.Close();
-				stream = null;
-			}
-		}}}
 	}
 }
 

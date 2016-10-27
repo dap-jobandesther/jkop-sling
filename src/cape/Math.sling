@@ -938,10 +938,10 @@ func rint(n as double) static as double
 		return(lang "cpp" double {{{ std::rint(n) }}})
 	}
 	ELSE IFDEF("target_c") {
-		return(lang "c" double {{{ rint(d) }}})
+		return(lang "c" double {{{ rint(n) }}})
 	}
 	ELSE IFDEF("target_objc") {
-		return(lang "objc" double {{{ rint(d) }}})
+		return(lang "objc" double {{{ rint(n) }}})
 	}
 	ELSE {
 		ERROR("Not implemented")

@@ -1,0 +1,40 @@
+class is SpriteSceneWithEntities imports cape imports cave imports motion:
+
+var runner as Runner
+var counter = 0
+var audioManager as AudioManager
+var clip as AudioClip
+
+func initialize override
+{
+	base.initialize()
+	audioManager = AudioManager.forApplication(context)
+	if(audioManager != null) {
+		clip = audioManager.getClipForResource("pop")
+	}
+	addTextureSpriteForSize(createTextureForImageResource("wood"), getReferenceWidth(), getReferenceHeight())
+	runner = new Runner()
+	addEntity(runner)
+
+	var rnd = new Random().nextDouble()
+	
+	var giveup = TextButtonEntity.forText(String.forDouble(rnd))
+	giveup.setBackgroundColor(Color.forRGBA(128, 128, 128, 128))
+	addEntity(giveup)
+	giveup.move(1.0 - giveup.getWidth(), 0.0)
+}
+
+func tick(gameTime as cape.TimeValue, delta as double) override
+{
+	base.tick(gameTime, delta)
+	counter++
+	if(counter == 200) {
+		addEntity(new Monster())
+		counter = 0
+	}
+}
+
+func getRunner() as Runner
+{
+	return(runner)
+}

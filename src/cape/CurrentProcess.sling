@@ -73,20 +73,21 @@ func getExecutableFile static as File
 			uint32_t bs = PATH_MAX;
 			r = _NSGetExecutablePath(buffer, &bs);
 		}}}
-		if(r == 0) {
-			var filepath as string;
-			lang "c" {{{
-				char rp[PATH_MAX];
-				filepath = realpath(buffer, rp);
-				if(filepath == NULL) {
-					filepath = buffer;
-				}
-			}}}
-			if(filepath == null) {
-				return(null)
-			}
-			return(FileInstance.forPath(filepath))
+		if(r != 0) {
+			return(null)
 		}
+		var filepath as string;
+		lang "c" {{{
+			char rp[PATH_MAX];
+			filepath = realpath(buffer, rp);
+			if(filepath == NULL) {
+				filepath = buffer;
+			}
+		}}}
+		if(filepath == null) {
+			return(null)
+		}
+		return(FileInstance.forPath(filepath))
 	}
 	ELSE IFDEF("target_win32") {
 		var filepath as string = null

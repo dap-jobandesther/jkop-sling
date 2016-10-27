@@ -22,48 +22,126 @@
  * SOFTWARE.
  */
 
+**
+** The ProcessLauncher class provides a mechanism for starting and controlling
+** additional processes.
+**
+
 class:
+
+class MyStringPipeHandler is BufferDataReceiver
+{
+	prop builder as StringBuilder
+	prop encoding as string
+
+	ctor
+	{
+		encoding = "UTF-8"
+	}
+
+	func onBufferData(data as buffer, size as long)
+	{
+		if(builder == null || data == null || size < 1) {
+			return
+		}
+		var str = String.forBuffer(Buffer.getSubBuffer(data, 0, size), encoding)
+		if(str == null) {
+			return
+		}
+		builder.append(str)
+	}
+}
+
+class MyBufferPipeHandler is BufferDataReceiver
+{
+	prop data as buffer
+
+	func onBufferData(newData as buffer, size as long)
+	{
+		data = Buffer.append(data, newData, size)
+	}
+}
+
+class QuietPipeHandler is BufferDataReceiver
+{
+	func onBufferData(data as buffer, size as long)
+	{
+	}
+}
+
+**
+** Creates a launcher for the given executable file. If the file does not exist,
+** this method returns a null object instead.
+**
 
 func forFile(file as File, params as array<string> = null) static as this
 {
+	if(file == null || file.isFile() == false) {
+		return(null)
+	}
 	var v = new this()
 	v.setFile(file)
 	foreach(param in params) {
-		v.addParam(param)
+		v.addToParams(param)
 	}
 	return(v)
 }
+
+**
+** Creates a process launcher for the given command. The command will be searched for in
+** the PATH (environment variable), and an appropriately configured ProcessLauncher
+** object will be returned. However, if the given command is not found, this method
+** returns null.
+**
 
 func forCommand(command as string, params as array<string> = null) static as this
 {
-	var v = new this()
-	v.setCommand(command)
-	foreach(param in params) {
-		v.addParam(param)
+	if(String.isEmpty(command)) {
+		return(null)
 	}
-	return(v)
+	var file = Environment.findCommand(command)
+	if(file == null) {
+		return(null)
+	}
+	return(forFile(file, params))
 }
+
+**
+** Creates a new process launcher object for the given string, which includes a complete
+** command line for executing the process, including the command itself and all the
+** parameters, delimited with spaces. If parameters will need to contain space as part
+** of their value, those parameters can be enclosed in double quotes. This method will
+** return null if the command does not exist and/or is not found.
+**
 
 func forString(str as string) static as this
 {
-	var v = new this()
-	var arr = String.quotedStringToVector(str, ' ')
-	if(arr != null && Vector.getSize(arr) > 0) {
-		v.setCommand(arr[0])
-		Vector.remove(arr, 0)
-		v.setParams(arr)
+	if(String.isEmpty(str)) {
+		return(null)
 	}
-	return(v)
+	var arr = String.quotedStringToVector(str, ' ')
+	if(arr == null || Vector.getSize(arr) < 1) {
+		return(null)
+	}
+	var vsz = Vector.getSize(arr)
+	var cmd = arr[0]
+	var params as array<string>
+	var paramCount = vsz - 1
+	if(paramCount > 0) {
+		params = new string[paramCount]
+		for(var n = 1; n<vsz; n++) {
+			params[n-1] = arr[n]
+		}
+	}
+	return(forCommand(cmd, params))
 }
 
-prop command as string
 prop file as File
 prop params as vector<string>
 prop env as map<string,string>
 prop cwd as File
 prop uid as int = -1
 prop gid as int = -1
-prop pipeHandler as BufferDataReceiver
 prop trapSigint as bool = true
 prop replaceSelf as bool = false
 prop pipePty as bool = false
@@ -97,6 +175,11 @@ func appendProperParam(sb as StringBuilder, p as string) private
 	}
 }
 
+**
+** Produces a string representation of this command with the command itself, parameters
+** and environment variables included.
+**
+
 func toString(includeEnv as bool = true) as string
 {
 	var sb = new StringBuilder()
@@ -109,23 +192,18 @@ func toString(includeEnv as bool = true) as string
 			sb.append(" ")
 		}
 	}
+	sb.append("\"")
 	if(file != null) {
-		sb.append("\"")
 		sb.append(file.getPath())
-		sb.append("\"")
 	}
-	else {
-		sb.append("\"")
-		sb.append(command)
-		sb.append("\"")
-	}
+	sb.append("\"")
 	foreach(p in params) {
 		appendProperParam(sb, p)
 	}
 	return(sb.toString())
 }
 
-func addParam(arg as string)
+func addToParams(arg as string) as this
 {
 	if(arg != null) {
 		if(params == null) {
@@ -133,20 +211,23 @@ func addParam(arg as string)
 		}
 		params += arg
 	}
+	return(this)
 }
 
-func addParam(file as File)
+func addToParams(file as File) as this
 {
 	if(file != null) {
-		addParam(file.getPath())
+		addToParams(file.getPath())
 	}
+	return(this)
 }
 
-func addParams(params as vector<string>)
+func addToParams(params as vector<string>) as this
 {
 	foreach(s in params) {
-		addParam(s)
+		addToParams(s)
 	}
+	return(this)
 }
 
 func setEnvVariable(key as string, val as string)
@@ -159,60 +240,53 @@ func setEnvVariable(key as string, val as string)
 	}
 }
 
-func start as Process
+func startProcess(wait as bool, pipeHandler as BufferDataReceiver, withIO as bool = false) private as Process
 {
-	return(startProcess(false, null, pipeHandler))
+	IFDEF("target_netx") {
+		return(ProcessLauncherNetX.startProcess(this, wait, pipeHandler, withIO, errorBuffer))
+	}
+	IFDEF("target_java") {
+		return(ProcessLauncherJava.startProcess(this, wait, pipeHandler))
+	}
+	ELSE {
+		ERROR("Not implemented")
+		return(null)
+	}
 }
 
-func execute(listener as ProcessLauncherListener = null) as int
+func start as Process
 {
-	var cp = startProcess(true, listener, pipeHandler)
+	return(startProcess(false, null))
+}
+
+func startWithIO as ProcessWithIO
+{
+	return(startProcess(false, null, true) as ProcessWithIO)
+}
+
+func execute as int
+{
+	var cp = startProcess(true, null)
 	if(cp == null) {
 		return(-1)
 	}
 	return(cp.getExitStatus())
 }
 
-class MyStringPipeHandler is BufferDataReceiver
+func executeSilent as int
 {
-	prop builder as StringBuilder
-	prop encoding as string
-
-	ctor
-	{
-		encoding = "UTF-8"
+	var cp = startProcess(true, new QuietPipeHandler())
+	if(cp == null) {
+		return(-1)
 	}
-
-	func onBufferData(data as buffer, size as long)
-	{
-		if(builder == null || data == null || size < 1) {
-			return
-		}
-		var str = String.forBuffer(Buffer.getSubBuffer(data, 0, size), encoding)
-		if(str == null) {
-			return
-		}
-		builder.append(str)
-	}
-}
-
-class QuietPipeHandler is BufferDataReceiver
-{
-	func onBufferData(data as buffer, size as long)
-	{
-	}
-}
-
-func disableOutput
-{
-	setPipeHandler(new QuietPipeHandler())
+	return(cp.getExitStatus())
 }
 
 func executeToStringBuilder(output as StringBuilder) as int
 {
 	var msp = new MyStringPipeHandler()
 	msp.setBuilder(output)
-	var cp = startProcess(true, null, msp)
+	var cp = startProcess(true, msp)
 	if(cp == null) {
 		return(-1)
 	}
@@ -228,42 +302,21 @@ func executeToString as string
 	return(sb.toString())
 }
 
-func startProcess(wait as bool, listener as ProcessLauncherListener, pipeHandler as BufferDataReceiver) private as Process
+func executeToBuffer as buffer
 {
-	IFDEF("target_netx") {
-		return(ProcessLauncherNetX.startProcess(this, wait, listener, pipeHandler, errorBuffer))
-	}
-	IFDEF("target_java") {
-		return(ProcessLauncherJava.startProcess(this, wait, listener, pipeHandler))
-	}
-	ELSE {
-		ERROR("Not implemented")
+	var ph = new MyBufferPipeHandler()
+	var cp = startProcess(true, ph)
+	if(cp == null) {
 		return(null)
 	}
+	return(ph.getData())
 }
 
-/* FIXME: executeToBuffer
-class MyBufferPipeHandler : BufferPipeHandler {
-	property DynamicBuffer dest
-	public void on_pipe_buffer(Buffer buf) {
-		if(dest != null) {
-			DynamicBuffer.cat(dest, buf)
-		}
-	}
-}
-
-public int execute_to_buffer(DynamicBuffer output, Logger logger = null) {
-	var msp = new MyBufferPipeHandler().set_dest(output)
-	var bph = get_buffer_pipe_handler()
-	var sph = get_string_pipe_handler()
-	set_buffer_pipe_handler(msp)
-	set_string_pipe_handler(null)
-	var cp = ProcessLauncherBackend.start_process(this, true, null, logger)
-	set_buffer_pipe_handler(bph)
-	set_string_pipe_handler(sph)
+func executeToPipe(pipeHandler as BufferDataReceiver) as int
+{
+	var cp = startProcess(true, pipeHandler)
 	if(cp == null) {
 		return(-1)
 	}
-	return(cp.get_exit_status())
+	return(cp.getExitStatus())
 }
-*/
