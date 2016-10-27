@@ -236,13 +236,13 @@ func executeTransaction(msg as SMTPMessage, server as URL, rcpts as DynamicVecto
 		if(socket != null) {
 			break;
 		}
-		Log.debug(ctx, "Failed to connect to SMTP server `" .. host .. ":" .. port .. "'. Waiting to retry ..");
+		Log.debug(ctx, "Failed to connect to SMTP server `" .. host .. ":" .. String.forInteger(port) .. "'. Waiting to retry ..");
 		Log.error(ctx, "FIXME - No sleep implementation yet, quitting instead!");
 		break;
 		//SystemEnvironment.sleep(1);
 	}
 	if(socket == null) {
-		return(SMTPClientTransactionResult.forError("Unable to connect to SMTP server `" .. host .. ":" .. port .. "'"));
+		return(SMTPClientTransactionResult.forError("Unable to connect to SMTP server `" .. host .. ":" .. String.forInteger(port) .. "'"));
 	}
 	var ops = PrintWriterWrapper.forWriter(socket);
 	var ins = new PrintReader(socket);

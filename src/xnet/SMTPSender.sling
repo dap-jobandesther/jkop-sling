@@ -114,13 +114,13 @@ func configure(config as DynamicMap) as this
 func onSendStart
 {
 	senderCount ++;
-	Log.debug(ctx, "SMTP send start: Now " .. senderCount .. " sender(s)");
+	Log.debug(ctx, "SMTP send start: Now " .. String.forInteger(senderCount) .. " sender(s)");
 }
 
 func onSendEnd
 {
 	senderCount --;
-	Log.debug(ctx, "SMTP send end: Now " .. senderCount .. " sender(s)");
+	Log.debug(ctx, "SMTP send end: Now " .. String.forInteger(senderCount) .. " sender(s)");
 }
 
 func send(msg as SMTPMessage, listener as SMTPSenderListener)
@@ -139,7 +139,7 @@ func send(msg as SMTPMessage, listener as SMTPSenderListener)
 		return;
 	}
 	if(maxSenderCount > 0 && senderCount > maxSenderCount) {
-		Log.warning(ctx, "Reached maximum sender count " .. maxSenderCount);
+		Log.warning(ctx, "Reached maximum sender count " .. String.forInteger(maxSenderCount));
 		if(listener != null) {
 			listener.onSMTPSendComplete(msg, SMTPClientResult.forError("Maximum number of SMTP senders has been exceeded."));
 		}

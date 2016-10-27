@@ -83,7 +83,7 @@ func message(type as string, text as string)
 	if(logDir != null) {
 		var logIdName as string
 		if(dt != null) {
-			logIdName = logIdPrefix .. "_" .. dt.getYear() .. String.forIntegerWithPadding(dt.getMonth(), 2) .. String.forIntegerWithPadding(dt.getDayOfMonth(), 2) .. ".log"
+			logIdName = logIdPrefix .. "_" .. String.forInteger(dt.getYear()) .. String.forIntegerWithPadding(dt.getMonth(), 2) .. String.forIntegerWithPadding(dt.getDayOfMonth(), 2) .. ".log"
 		}
 		else {
 			logIdName = logIdPrefix .. ".log"

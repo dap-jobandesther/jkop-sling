@@ -33,5 +33,5 @@ func getType override as string
 
 func toString override as string
 {
-	return(base.toString() .. " priority=" .. priority .. " ");
+	return(base.toString() .. " priority=" .. String.forInteger(priority) .. " ");
 }
