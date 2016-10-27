@@ -31,9 +31,6 @@ func forDatabase(database as SQLDatabase, tablePrefix as string = null) static a
 	if(tablePrefix != null) {
 		v.setTablePrefix(tablePrefix)
 	}
-	if(v.initializeTables() == false) {
-		v = null
-	}
 	return(v)
 }
 
