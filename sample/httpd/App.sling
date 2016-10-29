@@ -188,30 +188,30 @@ func main(args as array<string>) as int #main
 	});
 	// The following maps the URLS under /submap
 	map.child("submap", new HTTPServerRequestHandlerMap()
-		// The following ALSO maps to /submap (but the entry
-		// above takes precedence. If you comment out the one above,
-		// then the following will work)
 		.get("", func(req as HTTPServerRequest) {
+			// This ALSO maps to /submap (but the entry
+			// above takes precedence. If you comment out the one above,
+			// then the following will work)
 			req.sendTextString("This is the ALTERNATIVE SUBMAP!");
 		})
-		// The following maps to /submap/test1
 		.get("test1", func(req as HTTPServerRequest) {
+			// This maps to /submap/test1
 			req.sendTextString("submap -> test1");
 		})
-		// The following maps to /submap/test2
 		.get("test2", func(req as HTTPServerRequest) {
+			// This maps to /submap/test2
 			req.sendTextString("submap -> test2");
 		})
-		// The following maps to /submap/test2/* (any one level FROM
-		// test2, eg. /submap/test2/asdf, /submap/test2/hello, etc.
 		.get("test2/*", func(req as HTTPServerRequest) {
+			// This maps to /submap/test2/* (any one level FROM
+			// test2, eg. /submap/test2/asdf, /submap/test2/hello, etc.
 			req.sendTextString("submap -> test2/*: " .. req.peekResource());
 		})
-		// The following maps to anything anywhere below test2, eg.
-		// /submap/test2/a/b/c/d/e/f/g/h/j/etc.
-		// If you comment out the rule for "test2/*" above, then the following
-		// will also capture the URL paths one level from test2.
 		.get("test2/**", func(req as HTTPServerRequest) {
+			// This maps to anything anywhere below test2, eg.
+			// /submap/test2/a/b/c/d/e/f/g/h/j/etc.
+			// If you comment out the rule for "test2/*" above, then the following
+			// will also capture the URL paths one level from test2.
 			req.sendTextString("submap -> test2/**: " .. req.getRelativeResourcePath());
 		})
 	);

@@ -65,11 +65,16 @@ func main(args as array<string>) as int #main
 		return(1);
 	}
 	HTTPClient.execute(httpc, req, func(resp as HTTPClientResponse, data as buffer) {
-		PRINT(resp.toString());
-		if(SIZE(args) >= 4) {
-			var of = FileInstance.forPath(args[3]);
-			if(of.setContentsBuffer(data) == false) {
-				PRINT("FAILED to write output file: " .. of.getPath());
+		if(resp == null) {
+			PRINT("HTTP Request Failed")
+		}
+		else {
+			PRINT(resp.toString());
+			if(SIZE(args) >= 4) {
+				var of = FileInstance.forPath(args[3]);
+				if(of.setContentsBuffer(data) == false) {
+					PRINT("FAILED to write output file: " .. of.getPath());
+				}
 			}
 		}
 	});

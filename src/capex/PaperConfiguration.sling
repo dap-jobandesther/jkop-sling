@@ -29,7 +29,13 @@ class Size public
 	var width public as double
 	var height public as double
 
-	ctor(w as double = 0.0, h as double = 0.0)
+	ctor
+	{
+		width = 0.0
+		height = 0.0
+	}
+
+	ctor(w as double, h as double)
 	{
 		width = w
 		height = h

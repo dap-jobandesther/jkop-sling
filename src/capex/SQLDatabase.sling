@@ -122,7 +122,17 @@ func createOrderByString(order as array<SQLOrderingRule>) private as string
 	return(sb.toString())
 }
 
-func prepareQueryAllStatement(table as string, columns as array<string> = null, order as array<SQLOrderingRule> = null) virtual as SQLStatement
+func prepareQueryAllStatement(table as string) as SQLStatement
+{
+	return(prepareQueryAllStatement(table, null, null))
+}
+
+func prepareQueryAllStatement(table as string, columns as array<string>) as SQLStatement
+{
+	return(prepareQueryAllStatement(table, columns, null))
+}
+
+func prepareQueryAllStatement(table as string, columns as array<string>, order as array<SQLOrderingRule>) virtual as SQLStatement
 {
 	var sb = new StringBuilder()
 	sb.append("SELECT ")
@@ -173,7 +183,27 @@ func prepareCountRecordsStatement(table as string, criteria as map<string,string
 	return(stmt);
 }
 
-func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>, limit as int = 0, offset as int = 0, columns as array<string> = null, order as array<SQLOrderingRule> = null) virtual as SQLStatement
+func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>) virtual as SQLStatement
+{
+	return(prepareQueryWithCriteriaStatement(table, criteria, 0, 0, null, null))
+}
+
+func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>, limit as int) virtual as SQLStatement
+{
+	return(prepareQueryWithCriteriaStatement(table, criteria, limit, 0, null, null))
+}
+
+func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>, limit as int, offset as int) virtual as SQLStatement
+{
+	return(prepareQueryWithCriteriaStatement(table, criteria, limit, offset, null, null))
+}
+
+func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>, limit as int, offset as int, columns as array<string>) virtual as SQLStatement
+{
+	return(prepareQueryWithCriteriaStatement(table, criteria, limit, offset, columns, null))
+}
+
+func prepareQueryWithCriteriaStatement(table as string, criteria as map<string,string>, limit as int, offset as int, columns as array<string>, order as array<SQLOrderingRule>) virtual as SQLStatement
 {
 	var sb = new StringBuilder();
 	sb.append("SELECT ")

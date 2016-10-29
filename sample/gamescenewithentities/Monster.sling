@@ -2,7 +2,6 @@ class is SpriteEntity imports motion imports cape:
 
 var movex as double
 var movey as double
-var speed = 250;
 var runner as Runner
 var images as vector<string>
 

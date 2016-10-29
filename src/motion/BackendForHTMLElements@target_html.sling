@@ -79,8 +79,8 @@ class DomElementSprite is Sprite
 		if(x != myx || y != myy) {
 			myx = x
 			myy = y
-			var rx = x * widthFactor
-			var ry = y * heightFactor
+			var rx #used = x * widthFactor
+			var ry #used = y * heightFactor
 			lang "js" {{{
 				if(this.element != null) {
 					this.element.style.left = ~~rx;
@@ -299,7 +299,7 @@ class MyTextSprite is DomElementSprite is TextSprite
 		}
 		var textColor = desc.getTextColor()
 		if(textColor != null) {
-			var cc = HTMLDOM.colorToRGBA(textColor)
+			var cc #used = HTMLDOM.colorToRGBA(textColor)
 			lang "js" {{{
 				this.element.style.color = cc;
 			}}}

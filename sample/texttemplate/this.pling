@@ -22,13 +22,9 @@
  * SOFTWARE.
  */
 
-interface:
-
-func getId as string
-func isRunning as bool
-func getExitStatus as int
-func sendInterrupt
-func killRequest
-func killForce
-func kill(timeout as int)
-func waitForExit as int
+title = "Sling Text Template Sample"
+vendorId = "org.jkop"
+depends = [
+	"cape",
+	"capex"
+]
