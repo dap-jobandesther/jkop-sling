@@ -24,6 +24,8 @@
 
 class is GuiApplicationContext imports cape:
 
+depend "objc-header-m:<UIKit/UIKit.h>"
+
 func logError(message as string)
 {
 	PRINT("[ERROR] " .. message)
@@ -59,6 +61,14 @@ func getResourceImage(id as string) as Image
 func showMessageDialog(title as string, message as string)
 {
 	ERROR("Not implemented")
+	lang "objc" {{{
+		UIAlertView* alert = [[UIAlertView alloc]
+			initWithTitle:title
+			message:message
+			delegate:nil
+			cancelButtonTitle:nil otherButtonTitles:@"OK",nil];
+		[alert show];
+	}}}
 }
 
 func showMessageDialog(title as string, message as string, callback as function)

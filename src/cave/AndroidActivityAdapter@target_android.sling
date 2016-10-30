@@ -27,7 +27,7 @@ class is !"android.app.Activity" is CompatibleAndroidActivity:
 var permissionRequestListener as function<void,bool>
 var context protected as GuiApplicationContextForAndroid
 
-func initialize virtual
+func initializeAndroidActivity virtual
 {
 }
 
@@ -35,7 +35,7 @@ func onCreate(savedInstance as !"android.os.Bundle")
 {
 	base.onCreate(savedInstance)
 	context = GuiApplicationContextForAndroid.forActivityContext(this)
-	initialize()
+	initializeAndroidActivity()
 }
 
 func setPermissionRequestListener(listener as function<void,bool>)

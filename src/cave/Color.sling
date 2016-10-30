@@ -73,7 +73,17 @@ func instance(str as string = null) static as this
 	return(v)
 }
 
-func forRGBADouble(r as double, g as double, b as double, a as double = 1.0) static as this
+func forRGBDouble(r as double, g as double, b as double) static as this
+{
+	var v = new this()
+	v.setRed(r)
+	v.setGreen(g)
+	v.setBlue(b)
+	v.setAlpha(1.0)
+	return(v)
+}
+
+func forRGBADouble(r as double, g as double, b as double, a as double) static as this
 {
 	var v = new this()
 	v.setRed(r)
@@ -83,7 +93,17 @@ func forRGBADouble(r as double, g as double, b as double, a as double = 1.0) sta
 	return(v)
 }
 
-func forRGBA(r as int, g as int, b as int, a as int = 255) static as this
+func forRGB(r as int, g as int, b as int) static as this
+{
+	var v = new this()
+	v.setRed(r / 255.0)
+	v.setGreen(g / 255.0)
+	v.setBlue(b / 255.0)
+	v.setAlpha(1.0)
+	return(v)
+}
+
+func forRGBA(r as int, g as int, b as int, a as int) static as this
 {
 	var v = new this()
 	v.setRed(r / 255.0)
@@ -338,4 +358,13 @@ func to2Digits(val as string, sb as StringBuilder)
 		sb.append('0')
 	}
 	sb.append(val)
+}
+
+IFDEF("target_iosoc") {
+	depend "objc-header-h:<UIKit/UIKit.h>"
+
+	func toUIColor as !"UIColor"
+	{
+		return(lang "objc" !"UIColor" {{{ [UIColor colorWithRed:red green:green blue:blue alpha:alpha] }}})
+	}
 }

@@ -214,6 +214,16 @@ func getStyle(element as object, key as string) static as string
 	return(lang "js" string {{{ element.style[key] }}});
 }
 
+func removeStyle(element as object, key as string) static
+{
+	if(element == null || String.isEmpty(key)) {
+		return;
+	}
+	lang "js" {{{
+		element.style[key] = null;
+	}}}
+}
+
 func addEventListener(element as object, event as string, listener as function) static
 {
 	if(element == null || String.isEmpty(event) || listener == null) {
