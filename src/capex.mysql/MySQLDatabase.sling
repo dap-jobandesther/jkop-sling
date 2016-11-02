@@ -177,7 +177,7 @@ func columnToCreateString(cc as SQLTableColumnInfo) private as string
 		sb.append("VARCHAR(255), PRIMARY KEY (" .. columnName .. ")");
 	}
 	else if(tt == SQLTableColumnInfo.TYPE_TEXT) {
-		sb.append("TEXT");
+		sb.append("LONGTEXT");
 	}
 	else if(tt == SQLTableColumnInfo.TYPE_BLOB) {
 		sb.append("LONGBLOB");
