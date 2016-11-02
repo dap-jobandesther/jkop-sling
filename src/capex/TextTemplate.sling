@@ -604,6 +604,21 @@ func doExecute(data as vector<object>, avars as DynamicMap, result as StringBuil
 				}
 			}
 		}
+		else if(tagname == "printRaw") {
+			var varname = substituteVariables(Vector.get(words, 1), vars);
+			if(String.isEmpty(varname) == false) {
+				var vv = getVariableValueString(vars, varname);
+				if(String.isEmpty(vv) == false) {
+					result.append(vv);
+				}
+				else {
+					var defaultvalue = substituteVariables(Vector.get(words, 2), vars);
+					if(String.isEmpty(defaultvalue) == false) {
+						result.append(defaultvalue);
+					}
+				}
+			}
+		}
 		else if(tagname == "catPath") {
 			var hasSlash = false
 			var n = 0
