@@ -476,11 +476,266 @@ var sceneManager as SceneManager
 var gameTime as TimeValue
 var isStarted = false
 var lastFrame as double = 0.0
-var pointerEvent #used = new PointerEvent()
-var keyEvent #used = new KeyEvent()
+var pointerEvent = new PointerEvent()
+var keyEvent = new KeyEvent()
+var isOpera = false
+var isWebkit = false
+
+// The ultimate reference for all things related to keypresses on JavaScript: http://unixpapa.com/js/key.html
+
+func translateKeyCode(keycode as int, keychar as string, event as KeyEvent) private
+{
+	var kc as int
+	var sv as string
+	switch(keycode) {
+		case 32:  {
+			kc = KeyEvent.KEY_SPACE
+			sv = " "
+		}
+		case 13:  {
+			kc = KeyEvent.KEY_ENTER
+			sv = "\n"
+		}
+		case  9:  {
+			kc = KeyEvent.KEY_TAB
+			sv = "\t"
+		}
+		case 27:  {
+			kc = KeyEvent.KEY_ESCAPE
+		}
+		case  8:  {
+			kc = KeyEvent.KEY_BACKSPACE
+		}
+		case 16:  {
+			kc = KeyEvent.KEY_SHIFT
+		}
+		case 17:  {
+			kc = KeyEvent.KEY_CONTROL
+		}
+		case 18:  {
+			kc = KeyEvent.KEY_ALT
+		}
+		case 20:  {
+			kc = KeyEvent.KEY_CAPSLOCK
+		}
+		case 144: {
+			kc = KeyEvent.KEY_NUMLOCK
+		}
+		case 37:  {
+			kc = KeyEvent.KEY_LEFT
+		}
+		case 38:  {
+			kc = KeyEvent.KEY_UP
+		}
+		case 39:  {
+			kc = KeyEvent.KEY_RIGHT
+		}
+		case 40:  {
+			kc = KeyEvent.KEY_DOWN
+		}
+		case 45:  {
+			kc = KeyEvent.KEY_INSERT
+		}
+		case 46:  {
+			kc = KeyEvent.KEY_DELETE
+		}
+		case 36:  {
+			kc = KeyEvent.KEY_HOME
+		}
+		case 35:  {
+			kc = KeyEvent.KEY_END
+		}
+		case 33:  {
+			kc = KeyEvent.KEY_PAGEUP
+		}
+		case 34:  {
+			kc = KeyEvent.KEY_PAGEDOWN
+		}
+		case 112: {
+			kc = KeyEvent.KEY_F1
+		}
+		case 113: {
+			kc = KeyEvent.KEY_F2
+		}
+		case 114: {
+			kc = KeyEvent.KEY_F3
+		}
+		case 115: {
+			kc = KeyEvent.KEY_F4
+		}
+		case 116: {
+			kc = KeyEvent.KEY_F5
+		}
+		case 117: {
+			kc = KeyEvent.KEY_F6
+		}
+		case 118: {
+			kc = KeyEvent.KEY_F7
+		}
+		case 119: {
+			kc = KeyEvent.KEY_F8
+		}
+		case 120: {
+			kc = KeyEvent.KEY_F9
+		}
+		case 121: {
+			kc = KeyEvent.KEY_F10
+		}
+		case 122: {
+			kc = KeyEvent.KEY_F11
+		}
+		case 123: {
+			kc = KeyEvent.KEY_F12
+		}
+		case 224: {
+			kc = KeyEvent.KEY_SUPER
+		}
+		case 91 : {
+			kc = KeyEvent.KEY_SUPER
+		}
+		case 92 : {
+			kc = KeyEvent.KEY_SUPER
+		}
+		case 93 : {
+			kc = KeyEvent.KEY_SUPER
+		}
+		default: {
+			kc = KeyEvent.KEY_NONE
+			sv = keychar
+		}
+	}
+	// FIXME: Could somehow incorporate the keypad keys from http://unixpapa.com/js/key.html
+	event.setKeyCode(kc)
+	event.setStringValue(sv)
+}
+
+func onJSKeyDown(e as object)
+{
+	var keycode as int
+	var keychar as string
+	var shift = false
+	var alt = false
+	var ctrl = false
+	lang "js" {{{
+		keychar = e.key;
+		keycode = e.keyCode;
+		shift = e.shiftKey;
+		alt = e.altKey;
+		ctrl = e.ctrlKey;
+	}}}
+	if(isWebkit && ctrl) {
+		onJSKeyPress(e)
+		return
+	}
+	keyEvent.clear()
+	keyEvent.setAction(KeyEvent.ACTION_DOWN)
+	translateKeyCode(keycode, keychar, keyEvent)
+	keyEvent.setShift(shift)
+	keyEvent.setControl(ctrl)
+	keyEvent.setAlt(alt)
+	onKeyEvent(keyEvent)
+	if(keyEvent.isConsumed) {
+		lang "js" {{{
+			if(e.preventDefault) {
+				e.preventDefault();
+			}
+		}}}
+	}
+}
+
+func onJSKeyPress(e as object)
+{
+	var keycode as int
+	var charcode as int
+	var shift = false
+	var alt = false
+	var ctrl = false
+	lang "js" {{{
+		keycode = e.keyCode;
+		if(this.isOpera) {
+			charcode = e.which;
+		}
+		else if(this.isWebkit) {
+			charcode = e.keyCode;
+		}
+		else {
+			charcode = e.charCode;
+		}
+		shift = e.shiftKey;
+		alt = e.altKey;
+		ctrl = e.ctrlKey;
+	}}}
+	keyEvent.clear()
+	keyEvent.setAction(KeyEvent.ACTION_DOWN)
+	translateKeyCode(keycode, null, keyEvent)
+	if(isOpera == false && isWebkit == false) {
+		if(keycode > 0 && keyEvent.getKeyCode() != KeyEvent.KEY_NONE) {
+			return
+		}
+	}
+	if(charcode == 32 || charcode == 9 || charcode == 8) {
+		return
+	}
+	if(charcode > 0) {
+		var str = cape.String.forCharacter(charcode as char)
+		if(ctrl) {
+			str = cape.String.toLowerCase(str)
+		}
+		keyEvent.setStringValue(str)
+		keyEvent.setShift(shift)
+		keyEvent.setControl(ctrl)
+		keyEvent.setAlt(alt)
+		onKeyEvent(keyEvent)
+		if(keyEvent.isConsumed) {
+			lang "js" {{{
+				if(e.preventDefault) {
+					e.preventDefault();
+				}
+			}}}
+		}
+	}
+}
+
+func onJSKeyUp(e as object)
+{
+	var keycode as int
+	var keychar as string
+	var shift = false
+	var alt = false
+	var ctrl = false
+	lang "js" {{{
+		keychar = e.key;
+		keycode = e.keyCode;
+		shift = e.shiftKey;
+		alt = e.altKey;
+		ctrl = e.ctrlKey;
+	}}}
+	keyEvent.clear()
+	keyEvent.setAction(KeyEvent.ACTION_UP)
+	translateKeyCode(keycode, keychar, keyEvent)
+	keyEvent.setShift(shift)
+	keyEvent.setControl(ctrl)
+	keyEvent.setAlt(alt)
+	onKeyEvent(keyEvent)
+	if(keyEvent.isConsumed) {
+		lang "js" {{{
+			if(e.preventDefault) {
+				e.preventDefault();
+			}
+		}}}
+	}
+}
 
 func initialize
 {
+	lang "js" {{{
+		if(navigator.userAgent.indexOf("Opera") >= 0) {
+			this.isOpera = true;
+		}
+		if(navigator.userAgent.indexOf("WebKit") >= 0) {
+			this.isWebkit = true;
+		}
+	}}}
 	sceneManager = new SceneManager()
 	sceneManager.setContext(context)
 	sceneManager.setBackend(this)
@@ -543,12 +798,20 @@ func initialize
 	HTMLDOM.addEventListener(domElement, "mousedown", onDown)
 	HTMLDOM.addEventListener(domElement, "mousemove", onMove)
 	HTMLDOM.addEventListener(domElement, "mouseup", onUp)
+	lang "js" {{{
+		window.addEventListener('keydown', function(event) {
+			this.onJSKeyDown(event)
+		}.bind(this), false);
+		window.addEventListener('keypress', function(event) {
+			this.onJSKeyPress(event)
+		}.bind(this), false);
+		window.addEventListener('keyup', function(event) {
+			this.onJSKeyUp(event)
+		}.bind(this), false);
+	}}}
 	/*
 	HTMLDOM.addEventListener(domElement, "mousewheel", onDown)
 	HTMLDOM.addEventListener(domElement, "DOMMouseScroll", onDown)
-	HTMLDOM.addEventListener(domElement, "keydown", onDown)
-	HTMLDOM.addEventListener(domElement, "keypress", onDown)
-	HTMLDOM.addEventListener(domElement, "keyup", onDown)
 	*/
 }
 
@@ -630,6 +893,14 @@ func onPointerEvent(event as PointerEvent)
 	var scene = sceneManager.getCurrentScene()
 	if(scene != null) {
 		scene.onPointerEvent(event)
+	}
+}
+
+func onKeyEvent(event as KeyEvent)
+{
+	var scene = sceneManager.getCurrentScene()
+	if(scene != null) {
+		scene.onKeyEvent(event)
 	}
 }
 

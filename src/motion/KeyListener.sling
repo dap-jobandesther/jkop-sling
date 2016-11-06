@@ -22,37 +22,6 @@
  * SOFTWARE.
  */
 
-class imports cape:
+interface:
 
-var index public as int = -1
-var scene protected as EntityScene
-
-func setScene(scene as EntityScene) virtual
-{
-	this.scene = scene
-}
-
-func getScene as EntityScene
-{
-	return(scene)
-}
-
-func initialize virtual
-{
-}
-
-func cleanup virtual
-{
-}
-
-func tick(gameTime as TimeValue, delta as double) virtual
-{
-}
-
-func remove
-{
-	var ss = scene
-	if(ss != null) {
-		ss.removeEntity(this)
-	}
-}
+func onKeyEvent(event as KeyEvent)

@@ -1,3 +1,27 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 class is SpriteSceneWithEntities imports cape imports cave imports motion:
 
 var audioManager as AudioManager
@@ -16,8 +40,8 @@ func initialize override
 	addTextureSpriteForSize(createTextureForImageResource("wood"), getReferenceWidth(), getReferenceHeight())
 	var btnHeight = 0.15
 	var ac = TextButtonEntity.forText("stop stream")
-	ac.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	ac.setPressedColor(Color.forRGBA(80, 150, 80))
+	ac.setBackgroundColor(Color.forRGB(128, 255, 128))
+	ac.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(ac)
 	ac.resize(0.9, btnHeight)
 	ac.move(0.5-ac.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*3)
@@ -27,8 +51,8 @@ func initialize override
 		}
 	})
 	var ap = TextButtonEntity.forText("play stream")
-	ap.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	ap.setPressedColor(Color.forRGBA(80, 150, 80))
+	ap.setBackgroundColor(Color.forRGB(128, 255, 128))
+	ap.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(ap)
 	ap.resize(0.9, btnHeight)
 	ap.move(0.5-ap.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*2)
@@ -39,8 +63,8 @@ func initialize override
 		}
 	})
 	var be = TextButtonEntity.forText("pause stream")
-	be.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be.setPressedColor(Color.forRGBA(80, 150, 80))
+	be.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be)
 	be.resize(0.9, btnHeight)
 	be.move(0.5-be.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*4)
@@ -50,8 +74,8 @@ func initialize override
 		}
 	})
 	var be1 = TextButtonEntity.forText("play clip")
-	be1.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be1.setPressedColor(Color.forRGBA(80, 150, 80))
+	be1.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be1.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be1)
 	be1.resize(0.9, btnHeight)
 	be1.move(0.5-be1.getWidth()/2, getReferenceHeight() - btnHeight*1.25)
@@ -62,8 +86,8 @@ func initialize override
 		}
 	})
 	var be2 = TextButtonEntity.forText("toggle loop")
-	be2.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be2.setPressedColor(Color.forRGBA(80, 150, 80))
+	be2.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be2.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be2)
 	be2.resize(0.9, btnHeight)
 	be2.move(0.5-be2.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*5)
@@ -73,8 +97,8 @@ func initialize override
 		}
 	})
 	var be3 = TextButtonEntity.forText("seek +10sec")
-	be3.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be3.setPressedColor(Color.forRGBA(80, 150, 80))
+	be3.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be3.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be3)
 	be3.resize(0.9, btnHeight)
 	be3.move(0.5-be3.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*6)
@@ -85,8 +109,8 @@ func initialize override
 		}
 	})
 	var be4 = TextButtonEntity.forText("vol (-)")
-	be4.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be4.setPressedColor(Color.forRGBA(80, 150, 80))
+	be4.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be4.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be4)
 	be4.resize(0.4, btnHeight)
 	be4.move(0.05, getReferenceHeight() - (btnHeight*1.25)*7)
@@ -100,8 +124,8 @@ func initialize override
 		}
 	})
 	var be5 = TextButtonEntity.forText("vol (+)")
-	be5.setBackgroundColor(Color.forRGBA(128, 255, 128))
-	be5.setPressedColor(Color.forRGBA(80, 150, 80))
+	be5.setBackgroundColor(Color.forRGB(128, 255, 128))
+	be5.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be5)
 	be5.resize(0.4, btnHeight)
 	be5.move(0.5, getReferenceHeight() - (btnHeight*1.25)*7)

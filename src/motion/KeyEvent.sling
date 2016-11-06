@@ -24,13 +24,87 @@
 
 class:
 
-const DOWN = 0
-const UP = 1
+const ACTION_NONE = 0
+const ACTION_DOWN = 1
+const ACTION_UP = 2
 
-prop keyCode as int
+const KEY_NONE = 0
+const KEY_SPACE = 1
+const KEY_ENTER = 2
+const KEY_TAB = 3
+const KEY_ESCAPE = 4
+const KEY_BACKSPACE = 5
+const KEY_SHIFT = 6
+const KEY_CONTROL = 7
+const KEY_ALT = 8
+const KEY_CAPSLOCK = 9
+const KEY_NUMLOCK = 10
+const KEY_LEFT = 11
+const KEY_UP = 12
+const KEY_RIGHT = 13
+const KEY_DOWN = 14
+const KEY_INSERT = 15
+const KEY_DELETE = 16
+const KEY_HOME = 17
+const KEY_END = 18
+const KEY_PAGEUP = 19
+const KEY_PAGEDOWN = 20
+const KEY_F1 = 21
+const KEY_F2 = 22
+const KEY_F3 = 23
+const KEY_F4 = 24
+const KEY_F5 = 25
+const KEY_F6 = 26
+const KEY_F7 = 27
+const KEY_F8 = 28
+const KEY_F9 = 29
+const KEY_F10 = 30
+const KEY_F11 = 31
+const KEY_F12 = 32
+const KEY_SUPER = 33
+
 prop action as int
+prop keyCode as int
+prop stringValue as string
+prop shift as bool
+prop control as bool
+prop command as bool
+prop alt as bool
+var isConsumed public = false
 
-func asString as string
+func consume
 {
-	return(null)
+	isConsumed = true
+}
+
+func isKey(key as int) as bool
+{
+	if(keyCode == key) {
+		return(true)
+	}
+	return(false)
+}
+
+func isString(value as string) as bool
+{
+	if(value == stringValue) {
+		return(true)
+	}
+	return(false)
+}
+
+func isCharacter(value as char) as bool
+{
+	if(stringValue != null && cape.String.getChar(stringValue, 0) == value) {
+		return(true)
+	}
+	return(false)
+}
+
+func clear
+{
+	action = 0
+	keyCode = 0
+	stringValue = null
+	isConsumed = false
 }
