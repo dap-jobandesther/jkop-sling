@@ -131,6 +131,14 @@ func getFirstChild(element as object) static as object
 	return(lang "js" object {{{ element.firstChild }}});
 }
 
+func getChild(element as object, index as int) static as object
+{
+	if(element == null) {
+		return(null)
+	}
+	return(lang "js" object {{{ element.childNodes[index] }}})
+}
+
 func getAttribute(element as object, attr as string) static as string
 {
 	if(element == null || String.isEmpty(attr)) {
@@ -212,6 +220,16 @@ func getStyle(element as object, key as string) static as string
 		return(null);
 	}
 	return(lang "js" string {{{ element.style[key] }}});
+}
+
+func removeStyle(element as object, key as string) static
+{
+	if(element == null || String.isEmpty(key)) {
+		return;
+	}
+	lang "js" {{{
+		element.style[key] = null;
+	}}}
 }
 
 func addEventListener(element as object, event as string, listener as function) static

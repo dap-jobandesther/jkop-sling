@@ -447,7 +447,7 @@ func forIntegerHex(vv as int #used) static as string
 		return(lang "java" string {{{ java.lang.Integer.toHexString(vv) }}})
 	}
 	ELSE IFDEF("target_js") {
-		return(lang "js" string {{{ vv.toString(16) }}})
+		return(lang "js" string {{{ (~~vv).toString(16) }}})
 	}
 	ELSE {
 		ERROR("Not implemented")

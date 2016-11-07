@@ -125,8 +125,8 @@ func entry(name as string) override as File
 }
 
 // FIXME func Iterator entries virtual stub as Iterator
-func move(dest as File, replace as bool = true) override stub as bool
-func rename(newname as string, replace as bool = true) override stub as bool
+func move(dest as File, replace as bool) override stub as bool
+func rename(newname as string, replace as bool) override stub as bool
 func touch override stub as bool
 func write override stub as FileWriter
 func append override stub as FileWriter

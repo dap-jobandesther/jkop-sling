@@ -25,7 +25,17 @@
 class imports cape:
 
 var index public as int = -1
-var scene public as EntityScene
+var scene protected as EntityScene
+
+func setScene(scene as EntityScene) virtual
+{
+	this.scene = scene
+}
+
+func getScene as EntityScene
+{
+	return(scene)
+}
 
 func initialize virtual
 {

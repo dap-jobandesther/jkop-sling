@@ -26,6 +26,7 @@ class is SpriteScene is EntityScene imports cape:
 
 var entities as array<Entity>
 var pointerListeners = new vector<PointerListener>
+var keyListeners = new vector<KeyListener>
 var highestIndex = -1
 var capturedPointerListener as PointerListener
 
@@ -46,6 +47,16 @@ func tick(gameTime as TimeValue, delta as double) override
 	}
 }
 
+func onKeyEvent(event as KeyEvent) override
+{
+	foreach(keyListener in keyListeners) {
+		keyListener.onKeyEvent(event)
+		if(event.isConsumed) {
+			break
+		}
+	}
+}
+
 func onPointerEvent(event as PointerEvent) override
 {
 	base.onPointerEvent(event)
@@ -57,6 +68,9 @@ func onPointerEvent(event as PointerEvent) override
 		return
 	}
 	foreach(pointerListener in pointerListeners) {
+		if(event.isConsumed) {
+			break
+		}
 		if(pointerListener.onPointerEvent(event)) {
 			event.consume()
 			capturedPointerListener = pointerListener
@@ -97,12 +111,15 @@ func addEntity(entity as Entity)
 	if(thisIndex >= count) {
 		grow()
 	}
-	entity.scene = this
+	entity.setScene(this)
 	entities[thisIndex] = entity
 	entity.index = thisIndex
 	highestIndex = thisIndex
 	if(entity is PointerListener) {
 		pointerListeners += entity as! PointerListener
+	}
+	if(entity is KeyListener) {
+		keyListeners += entity as! KeyListener
 	}
 	entity.initialize()
 }
@@ -119,8 +136,11 @@ func removeEntity(entity as Entity)
 	if(entity is PointerListener) {
 		Vector.removeValue(pointerListeners, entity as! PointerListener)
 	}
+	if(entity is KeyListener) {
+		Vector.removeValue(keyListeners, entity as! KeyListener)
+	}
 	entity.cleanup()
-	entity.scene = null
+	entity.setScene(null)
 	entity.index = -1
 	if(highestIndex == eidx) {
 		entities[eidx] = null
@@ -148,7 +168,7 @@ func removeAllEntities()
 			continue
 		}
 		e.cleanup()
-		e.scene = null
+		e.setScene(null)
 		e.index = -1
 	}
 	entities = null

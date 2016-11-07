@@ -181,24 +181,26 @@ func toString(defaultUserAgent as string) as string
 	rq.append(' ');
 	rq.append(path);
 	var first as bool = true;
-	var it as Iterator<KeyValuePair<string,string>> = queryParams.iterate();
-	while(it != null) {
-		var kv = it.next();
-		if(kv == null) {
-			break;
-		}
-		if(first) {
-			rq.append('?');
-			first = false;
-		}
-		else {
-			rq.append('&');
-		}
-		rq.append(kv.key);
-		var val = kv.value;
-		if(val != null) {
-			rq.append('=');
-			rq.append(URLEncoder.encode(val, false, false));
+	if(queryParams != null) {
+		var it as Iterator<KeyValuePair<string,string>> = queryParams.iterate();
+		while(it != null) {
+			var kv = it.next();
+			if(kv == null) {
+				break;
+			}
+			if(first) {
+				rq.append('?');
+				first = false;
+			}
+			else {
+				rq.append('&');
+			}
+			rq.append(kv.key);
+			var val = kv.value;
+			if(val != null) {
+				rq.append('=');
+				rq.append(URLEncoder.encode(val, false, false));
+			}
 		}
 	}
 	rq.append(' ');
@@ -206,7 +208,7 @@ func toString(defaultUserAgent as string) as string
 	var hasUserAgent = false;
 	var hasHost = false;
 	var hasContentLength = false;
-	if(headers != null) {
+	if(rawHeaders != null) {
 		var it = (rawHeaders as! KeyValueList<string,string>).iterate();
 		while(true) {
 			var kvp = it.next();

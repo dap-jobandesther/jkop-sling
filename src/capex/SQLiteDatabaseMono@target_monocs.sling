@@ -140,12 +140,12 @@ func initialize(file as cape.File, openCreate as bool) override as bool
 		return(false);
 	}
 	if(openCreate == false && file.isFile() == false) {
-		Log.error(getLogger(), "Database does not exist: " .. file);
+		Log.error(getLogger(), "Database does not exist: " .. file.getPath());
 		return(false);
 	}
 	var nativepath = file.getPath();
 	if(nativepath == null) {
-		Log.error(getLogger(), "Database file '" .. file .. "' is not on a native filesystem. Cannot open.");
+		Log.error(getLogger(), "Database file '" .. file.getPath() .. "' is not on a native filesystem. Cannot open.");
 		return(false);
 	}
 	var v = false;

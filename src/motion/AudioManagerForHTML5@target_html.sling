@@ -31,8 +31,8 @@ class MyAudioClip is AudioClip
 	func play as bool
 	{
 		var v = false
-		var fnp = id
-		var audioElement as ptr
+		var fnp #used = id
+		var audioElement as ptr #used
 		lang "js" {{{
 				audioElement = document.createElement('audio');
 				audioElement.setAttribute("preload", "auto");
@@ -74,9 +74,8 @@ class MyAudioStream is AudioStream
 
 	func initialize(id as string) static as this
 	{
-		var v = false
-		var fnp = id
-		var audioElement as ptr
+		var fnp #used = id
+		var audioElement as ptr #used
 		lang "js" {{{
 				audioElement = document.createElement('audio');
 				audioElement.setAttribute("preload", "auto");

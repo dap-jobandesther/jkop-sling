@@ -48,7 +48,7 @@ prop clickHandler as function
 
 ctor
 {
-	backgroundColor = Color.forRGBA(128, 128, 128)
+	backgroundColor = Color.forRGB(128, 128, 128)
 	pressedColor = Color.white()
 }
 

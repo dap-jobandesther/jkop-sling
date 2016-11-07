@@ -130,7 +130,9 @@ func showMessageDialog(title as string, message as string, callback as function)
 	lang "js" {{{
 		window.alert(message);
 	}}}
-	callback()
+	if(callback != null) {
+		callback()
+	}
 }
 
 func showErrorDialog(message as string)
@@ -143,5 +145,7 @@ func showErrorDialog(message as string, callback as function)
 	lang "js" {{{
 		window.alert(message);
 	}}}
-	callback()
+	if(callback != null) {
+		callback()
+	}
 }
