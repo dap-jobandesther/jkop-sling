@@ -300,7 +300,7 @@ func getPostParameters as map<string,string>
 		if(String.isEmpty(bs)) {
 			return(null);
 		}
-		postParameters = QueryString.parse(bs);
+		postParameters = capex.QueryString.parse(bs);
 	}
 	return(postParameters);
 }

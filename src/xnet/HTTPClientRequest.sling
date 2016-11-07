@@ -199,7 +199,7 @@ func toString(defaultUserAgent as string) as string
 			var val = kv.value;
 			if(val != null) {
 				rq.append('=');
-				rq.append(URLEncoder.encode(val, false, false));
+				rq.append(capex.URLEncoder.encode(val, false, false));
 			}
 		}
 	}
