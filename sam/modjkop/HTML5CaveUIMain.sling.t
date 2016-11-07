@@ -22,12 +22,26 @@
  * SOFTWARE.
  */
 
-title = "apidoc for SAM"
-type = "library"
-depends = [
-	"cape",
-	"capex",
-	"eqcore",
-	"samcore",
-	"samsling"
-]
+func main(args as array<string>) static as int #main
+{
+	var context = new cave.GuiApplicationContextForHTML()
+	var resources = [
+		{%
+		var project = SoftwareProjectNode.findProject(ctx, decl)
+		if(project != null) {
+			var first = true
+			foreach(resourceNode as SoftwareProjectResourceNode in project.getResources(ctx)) {
+				if(first == false) {
+					%}, {%
+				}
+				%}"{%= resourceNode.getName(ctx) %}"{%
+				first = false
+			}
+		}
+		%}
+	]
+	context.prepareResources(resources, func {
+		new {%= className %}().initialize()
+	})
+	return(0)
+}

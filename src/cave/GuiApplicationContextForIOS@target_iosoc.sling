@@ -95,3 +95,7 @@ func switchActivity(className as string)
 {
 	ERROR("Not implemented")
 }
+
+func getScreenWidth stub as int
+func getScreenHeight stub as int
+func getScreenDensity stub as int

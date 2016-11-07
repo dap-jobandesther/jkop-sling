@@ -39,4 +39,4 @@ depends = [
 	"xnet"
 ]
 
-prefilters += "moddatamodel.CapexServerFilter"
+prefilters += "modjkop.CapexServerFilter"
