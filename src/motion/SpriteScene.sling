@@ -133,3 +133,13 @@ func getReferenceHeight as double
 {
 	return(layer.getReferenceHeight())
 }
+
+func getHeightValue(spec as string) as double
+{
+	return(layer.getHeightValue(spec))
+}
+
+func getWidthValue(spec as string) as double
+{
+	return(layer.getWidthValue(spec))
+}

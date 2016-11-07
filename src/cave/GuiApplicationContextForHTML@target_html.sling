@@ -149,3 +149,54 @@ func showErrorDialog(message as string, callback as function)
 		callback()
 	}
 }
+
+func getScreenWidth as int
+{
+	var v as int
+	lang "js" {{{
+		v = window.screen.availWidth;
+	}}}
+	return(v)
+}
+
+func getScreenHeight as int
+{
+	var v as int
+	lang "js" {{{
+		v = window.screen.availHeight;
+	}}}
+	return(v)
+}
+
+func getScreenDensity as int
+{
+	var ppi as int
+	// HACK: Firefox (and likely others) stubbornly uses a DPI value of n*96, regardless of what it really is.
+	// But in reality, most people wouldn't have 96 DPI anymore .. Thus we'll make a reasonable middle-ground guess
+	// of 1.3x the DPI (thus 1.3in, not 1in)
+	lang "js" {{{
+		var div = document.createElement("div");
+		div.setAttribute("style", "width: 1.3in; padding: 0; visibility: hidden; position: fixed; left: 0; top: 0;");
+		var bodys = document.getElementsByTagName("body");
+		bodys[0].appendChild(div);
+		ppi = div.offsetWidth;
+		if(ppi < 1) {
+			ppi = 1;
+		}
+		bodys[0].removeChild(div);
+	}}}
+	var qs = Environment.getQueryString()
+	if(cape.String.isEmpty(qs) == false) {
+		foreach(q in String.split(qs, '&')) {
+			if(cape.String.startsWith(q, "jkopDpi=") == false) {
+				continue
+			}
+			var val = cape.String.getSubString(q, 8)
+			if(cape.String.isEmpty(val) == false) {
+				ppi = cape.String.toInteger(val)
+			}
+			break
+		}
+	}
+	return(ppi)
+}

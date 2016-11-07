@@ -35,6 +35,3 @@ resources = [
 	"audio"
 ]
 prefilters += "modmotion.MotionFilter"
-compilerOptions = {
-	"html5.readableCode" : "true"
-}

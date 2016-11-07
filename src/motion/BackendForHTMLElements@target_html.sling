@@ -283,6 +283,8 @@ class MyTextureSprite is DomElementSprite is TextureSprite
 
 class MyTextSprite is DomElementSprite is TextSprite
 {
+	prop context as GuiApplicationContextForHTML
+
 	func setText(desc as TextProperties)
 	{
 		if(desc == null) {
@@ -334,13 +336,26 @@ class MyTextSprite is DomElementSprite is TextSprite
 		setBackgroundColor(desc.getBackgroundColor())
 		HTMLDOM.setInnerHTML(element, desc.getText())
 		var hsz as double
-		var fsRelative = desc.getFontSizeRelative()
-		var fsAbsolute = desc.getFontSizeAbsolute()
-		if(fsRelative > 0.0) {
-			hsz = getHeightFactor() * fsRelative
+		var fsDesc = desc.getFontSizeDescription()
+		if(cape.String.isEmpty(fsDesc) == false) {
+			var density as int
+			if(context != null) {
+				density = context.getScreenDensity()
+			}
+			else {
+				density = 96
+			}
+			hsz = cave.Length.asPoints(fsDesc, density)
 		}
 		else {
-			hsz = fsAbsolute * 18
+			var fsRelative = desc.getFontSizeRelative()
+			var fsAbsolute = desc.getFontSizeAbsolute()
+			if(fsRelative > 0.0) {
+				hsz = getHeightFactor() * fsRelative
+			}
+			else {
+				hsz = fsAbsolute * 18
+			}
 		}
 		lang "js" {{{
 			this.element.style.fontSize = hsz;
@@ -357,10 +372,12 @@ class MyTextSprite is DomElementSprite is TextSprite
 
 class MySpriteLayer is DomElementSprite is SpriteLayer
 {
+	prop context as GuiApplicationContextForHTML
 	var referenceWidth as double = 1.0
 	var referenceHeight as double = 0.0
 	var layerWidthFactor as double = 0.0
 	var layerHeightFactor as double = 0.0
+	var ppi = -1
 
 	func getLayerWidthFactor as double
 	{
@@ -403,6 +420,7 @@ class MySpriteLayer is DomElementSprite is SpriteLayer
 	func addTextSprite(text as TextProperties) as TextSprite
 	{
 		var v = new MyTextSprite()
+		v.setContext(context)
 		v.setParent(element)
 		v.setWidthFactor(getLayerWidthFactor())
 		v.setHeightFactor(getLayerHeightFactor())
@@ -456,6 +474,29 @@ class MySpriteLayer is DomElementSprite is SpriteLayer
 			hh = this.element.offsetHeight;
 		}}}
 		return(hh * referenceWidth / ww)
+	}
+
+	func getPPI private as int
+	{
+		if(ppi < 0) {
+			if(context != null) {
+				ppi = context.getScreenDensity()
+			}
+			if(ppi < 0) {
+				ppi = 96
+			}
+		}
+		return(ppi)
+	}
+
+	func getHeightValue(spec as string) as double
+	{
+		return(cave.Length.asPoints(spec, getPPI()) / getLayerHeightFactor())
+	}
+
+	func getWidthValue(spec as string) as double
+	{
+		return(cave.Length.asPoints(spec, getPPI()) / getLayerWidthFactor())
 	}
 }
 
@@ -847,6 +888,7 @@ func createSpriteLayer as SpriteLayer
 	HTMLDOM.setStyle(ee, "overflow", "hidden")
 	HTMLDOM.appendChild(domElement, ee)
 	var v = new MySpriteLayer()
+	v.setContext(context)
 	v.setElement(ee)
 	return(v)
 }

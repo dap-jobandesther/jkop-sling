@@ -226,3 +226,30 @@ func getAppDirectory static as File
 		return(new FileInvalid())
 	}
 }
+
+IFDEF("target_html") {
+	func getPageURL static as string
+	{
+		var url as string
+		lang "js" {{{
+			url = window.location.href;
+		}}}
+		return(url)
+	}
+
+	func getQueryString static as string
+	{
+		var url as string
+		lang "js" {{{
+			url = window.location.href;
+		}}}
+		if(cape.String.isEmpty(url)) {
+			return(null)
+		}
+		var q = cape.String.indexOf(url, '?')
+		if(q < 0) {
+			return(null)
+		}
+		return(cape.String.getSubString(url, q+1))
+	}
+}

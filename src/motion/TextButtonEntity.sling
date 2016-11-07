@@ -28,6 +28,7 @@ func forText(text as string) static as this
 {
 	var tp = TextProperties.forText(text)
 	tp.setFontSizeAbsolute(2.0)
+	tp.setFontSizeDescription("5mm")
 	return(forTextProperties(tp))
 }
 

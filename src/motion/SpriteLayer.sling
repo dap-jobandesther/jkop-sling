@@ -33,3 +33,5 @@ func setReferenceWidth(referenceWidth as double)
 func setReferenceHeight(referenceHeight as double)
 func getReferenceWidth as double
 func getReferenceHeight as double
+func getHeightValue(spec as string) as double
+func getWidthValue(spec as string) as double

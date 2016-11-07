@@ -252,4 +252,64 @@ func switchActivity(className as string)
 	activityContext.startActivity(intent)
 }
 
-func getResourceImage(id as string) stub as Image
+func getResourceImage(id as string) as Image
+{
+	return(ImageForAndroid.forResource(id, activityContext))
+}
+
+func getScreenWidth as int
+{
+	var activity = activityContext as !"android.app.Activity"
+	if(activity == null) {
+		return(0)
+	}
+	var wm = activity.getWindowManager() as! !"android.view.WindowManager"
+	if(wm == null) {
+		return(0)
+	}
+	var display = wm.getDefaultDisplay() as! !"android.view.Display"
+	if(display == null) {
+		return(0)
+	}
+	var pt = new !"android.graphics.Point"()
+	display.getSize(pt)
+	return(lang "java" int {{{ pt.x }}})
+}
+
+func getScreenHeight as int
+{
+	var activity = activityContext as !"android.app.Activity"
+	if(activity == null) {
+		return(0)
+	}
+	var wm = activity.getWindowManager() as! !"android.view.WindowManager"
+	if(wm == null) {
+		return(0)
+	}
+	var display = wm.getDefaultDisplay() as! !"android.view.Display"
+	if(display == null) {
+		return(0)
+	}
+	var pt = new !"android.graphics.Point"()
+	display.getSize(pt)
+	return(lang "java" int {{{ pt.y }}})
+}
+
+func getScreenDensity as int
+{
+	var activity = activityContext as !"android.app.Activity"
+	if(activity == null) {
+		return(0)
+	}
+	var wm = activity.getWindowManager() as! !"android.view.WindowManager"
+	if(wm == null) {
+		return(0)
+	}
+	var display = wm.getDefaultDisplay() as! !"android.view.Display"
+	if(display == null) {
+		return(0)
+	}
+	var metrics = new !"android.util.DisplayMetrics"()
+	display.getMetrics(metrics)
+	return(lang "java" int {{{ (int)metrics.xdpi }}})
+}
