@@ -313,3 +313,13 @@ func getScreenDensity as int
 	display.getMetrics(metrics)
 	return(lang "java" int {{{ (int)metrics.xdpi }}})
 }
+
+func getHeightValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
+
+func getWidthValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}

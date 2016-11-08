@@ -200,3 +200,13 @@ func getScreenDensity as int
 	}
 	return(ppi)
 }
+
+func getHeightValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
+
+func getWidthValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}

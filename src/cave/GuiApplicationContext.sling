@@ -34,3 +34,5 @@ func switchActivity(className as string)
 func getScreenWidth as int
 func getScreenHeight as int
 func getScreenDensity as int
+func getHeightValue(spec as string) as double
+func getWidthValue(spec as string) as double

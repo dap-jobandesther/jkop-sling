@@ -99,3 +99,13 @@ func switchActivity(className as string)
 func getScreenWidth stub as int
 func getScreenHeight stub as int
 func getScreenDensity stub as int
+
+func getHeightValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
+
+func getWidthValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
