@@ -22,30 +22,7 @@
  * SOFTWARE.
  */
 
-func main(args as array<string>) static as int #main
-{
-	var context = new cave.GuiApplicationContextForHTML()
-	var resources = [
-		{%
-		var project = SoftwareProjectNode.findProject(ctx, decl)
-		if(project != null) {
-			var first = true
-			foreach(resourceNode as SoftwareProjectResourceNode in project.getResources(ctx)) {
-				if(first == false) {
-					%}, {%
-				}
-				%}"{%= resourceNode.getName(ctx) %}"{%
-				first = false
-			}
-		}
-		%}
-	]
-	context.prepareResources(resources, func {
-		var main = new {%= className %}()
-		if(main is cave.ScreenWithContext) {
-			main.setContext(context)
-		}
-		main.initialize()
-	})
-	return(0)
-}
+interface:
+
+func setContext(ctx as GuiApplicationContext)
+func getContext as GuiApplicationContext

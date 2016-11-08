@@ -42,12 +42,13 @@ class MyAppDelegate implements !"UIApplicationDelegate" depends "objc-header-h:<
 			window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 		}}}
 		var cc = new {%= className %}()
-		if(cc != null) {
-			viewController = cc
-			lang "objc" {{{
-				window.rootViewController = self->viewController;
-			}}}
+		if(cc is cave.ScreenWithContext) {
+			cc.setContext(ctx)
 		}
+		viewController = cc
+		lang "objc" {{{
+			window.rootViewController = self->viewController;
+		}}}
 		lang "objc" {{{
 			[window makeKeyAndVisible];
 		}}}
