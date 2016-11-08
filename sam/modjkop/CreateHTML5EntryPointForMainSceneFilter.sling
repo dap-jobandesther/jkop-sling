@@ -38,11 +38,11 @@ rule
 	process(sceneDecl) {
 		var className = sceneDecl.getNodeName(ctx)
 		var sb = new StringBuilder()
-		TEMPLATE("HTML5Main.sling.t", sb)
+		TEMPLATE("HTML5MotionMain.sling.t", sb)
 		var code = sb.toString()
-		var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "HTML5Main.sling.t")
+		var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "HTML5MotionMain.sling.t")
 		if(decls == null) {
-			ctx.error("Failed to parse the generated Android code: HTML5Main (compiler internal error)", sceneDecl)
+			ctx.error("Failed to parse the generated Android code: HTML5MotionMain (compiler internal error)", sceneDecl)
 			return(false)
 		}
 		foreach(node as NodeObject in decls.exportNodes(ctx)) {

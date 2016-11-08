@@ -24,9 +24,9 @@
 
 class imports cape:
 
-func stringAsPixels(value as string, dpi as int) as int
+func asPoints(value as string, ppi as int) static as int
 {
-	return(forString(value).toPixels(dpi))
+	return(forString(value).toPoints(ppi))
 }
 
 func forString(value as string) static as this
@@ -36,11 +36,11 @@ func forString(value as string) static as this
 	return(v)
 }
 
-func forPixels(value as double) static as this
+func forPoints(value as double) static as this
 {
 	var v = new this()
 	v.setValue(value)
-	v.setUnit(UNIT_PIXEL)
+	v.setUnit(UNIT_POINT)
 	return(v)
 }
 
@@ -76,13 +76,6 @@ func forInches(value as double) static as this
 	return(v)
 }
 
-func forPoints(value as double) static as this
-{
-	var v = new this()
-	v.setValue(value)
-	v.setUnit(UNIT_POINT)
-	return(v)
-}
 
 func forValue(value as double, unit as int) static as this
 {
@@ -92,21 +85,20 @@ func forValue(value as double, unit as int) static as this
 	return(v)
 }
 
-func forStringAsPixels(value as string, dpi as int) static as this
+func forStringAsPoints(value as string, ppi as int) static as this
 {
 	var v = new this()
 	v.parse(value)
-	v.setValue(v.toPixels(dpi))
-	v.setUnit(UNIT_PIXEL)
+	v.setValue(v.toPoints(ppi))
+	v.setUnit(UNIT_POINT)
 	return(v)
 }
 
-const UNIT_PIXEL = 0
+const UNIT_POINT = 0
 const UNIT_MILLIMETER = 1
 const UNIT_MICROMETER = 2
 const UNIT_NANOMETER = 3
 const UNIT_INCH = 4
-const UNIT_POINT = 5
 
 prop value as double
 prop unit as int
@@ -115,7 +107,7 @@ func parse(value as string) private
 {
 	if(value == null) {
 		this.value = 0
-		unit = UNIT_PIXEL
+		unit = UNIT_POINT
 		return
 	}
 	var i = 0
@@ -140,8 +132,8 @@ func parse(value as string) private
 	if(String.isEmpty(suffix)) {
 		unit = UNIT_POINT
 	}
-	else if(suffix == "px") {
-		unit = UNIT_PIXEL
+	else if(suffix == "pt" || suffix == "px") {
+		unit = UNIT_POINT
 	}
 	else if(suffix == "mm") {
 		unit = UNIT_MILLIMETER
@@ -160,34 +152,34 @@ func parse(value as string) private
 	}
 }
 
-func toPixels(dpi as int) as int
+func toPoints(ppi as int) as int
 {
-	if(unit == UNIT_PIXEL) {
+	if(unit == UNIT_POINT) {
 		return(value)
 	}
 	if(unit == UNIT_MILLIMETER) {
-		var v = value * dpi / 25
+		var v = value * ppi / 25
 		if(value > 0 && v < 1) {
 			v = 1
 		}
 		return(v)
 	}
 	if(unit == UNIT_MICROMETER) {
-		var v = value * dpi / (25 * 1000)
+		var v = value * ppi / (25 * 1000)
 		if(value > 0 && v < 1) {
 			v = 1
 		}
 		return(v)
 	}
 	if(unit == UNIT_NANOMETER) {
-		var v = value * dpi / (25 * 1000 * 1000)
+		var v = value * ppi / (25 * 1000 * 1000)
 		if(value > 0 && v < 1) {
 			v = 1
 		}
 		return(v)
 	}
 	if(unit == UNIT_INCH) {
-		var v = value * dpi
+		var v = value * ppi
 		if(value > 0 && v < 1) {
 			v = 1
 		}

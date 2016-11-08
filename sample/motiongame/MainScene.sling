@@ -228,6 +228,9 @@ func onKeyEvent(event as KeyEvent) override
 func onPointerEvent(event as PointerEvent) override
 {
 	base.onPointerEvent(event)
+	if(event.isConsumed) {
+		return
+	}
 	if(event.action == PointerEvent.DOWN) {
 		var logo = new LogoEntity()
 		addEntity(logo)

@@ -26,16 +26,30 @@ class imports compiler:
 
 func initialize(ctx as RunContext, initializer as ExtensionInitializer) static
 {
-	initializer.registerFilter(ctx, "MotionFilter@androidj", func() as ChangeFilter {
+	// apidoc
+	initializer.registerComponent(ctx, "apidoc", new ApiDocComponent())
+
+	// capex server
+	initializer.registerFilter(ctx, "CapexServerFilter", func(params as cape.DynamicMap) as ChangeFilter {
+		return(new DataModelsToCapexSQLFilter().setGenerateSQL(true).setGenerateHTTPServer(true))
+	})
+
+	// motion filters
+	initializer.registerFilter(ctx, "MotionFilter@androidj", func(params as cape.DynamicMap) as ChangeFilter {
 		return(new CreateAndroidActivitiesForScenesFilter())
 	})
-	initializer.registerFilter(ctx, "MotionFilter@html5es5", func() as ChangeFilter {
+	initializer.registerFilter(ctx, "MotionFilter@html5es5", func(params as cape.DynamicMap) as ChangeFilter {
 		return(new CreateHTML5EntryPointForMainSceneFilter())
 	})
-	initializer.registerFilter(ctx, "MotionFilter@html5es6", func() as ChangeFilter {
+	initializer.registerFilter(ctx, "MotionFilter@html5es6", func(params as cape.DynamicMap) as ChangeFilter {
 		return(new CreateHTML5EntryPointForMainSceneFilter())
 	})
-	initializer.registerFilter(ctx, "MotionFilter", func() as ChangeFilter {
+	initializer.registerFilter(ctx, "MotionFilter", func(params as cape.DynamicMap) as ChangeFilter {
 		return(new NoOperationFilter())
+	})
+
+	// widget filters
+	initializer.registerFilter(ctx, "CaveUIFilter", func(params as cape.DynamicMap) as ChangeFilter {
+		return(new CaveUIFilter().setTarget(params.getString("target")))
 	})
 }

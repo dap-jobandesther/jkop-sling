@@ -38,13 +38,12 @@ func initialize override
 		stream = audioManager.getStreamForResource("whereisthelove")
 	}
 	addTextureSpriteForSize(createTextureForImageResource("wood"), getReferenceWidth(), getReferenceHeight())
-	var btnHeight = 0.15
 	var ac = TextButtonEntity.forText("stop stream")
 	ac.setBackgroundColor(Color.forRGB(128, 255, 128))
 	ac.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(ac)
-	ac.resize(0.9, btnHeight)
-	ac.move(0.5-ac.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*3)
+	ac.resize(0.9, ac.getHeight())
+	ac.move(0.5-ac.getWidth()/2, getReferenceHeight() - (ac.getHeight()*1.25)*3)
 	ac.setClickHandler(func {
 		if(stream != null) {
 			stream.stop()
@@ -54,8 +53,8 @@ func initialize override
 	ap.setBackgroundColor(Color.forRGB(128, 255, 128))
 	ap.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(ap)
-	ap.resize(0.9, btnHeight)
-	ap.move(0.5-ap.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*2)
+	ap.resize(0.9, ap.getHeight())
+	ap.move(0.5-ap.getWidth()/2, getReferenceHeight() - (ac.getHeight()*1.25)*2)
 	ap.setClickHandler(func {
 		PRINT("AUDIO STREAM")
 		if(stream != null) {
@@ -66,8 +65,8 @@ func initialize override
 	be.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be)
-	be.resize(0.9, btnHeight)
-	be.move(0.5-be.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*4)
+	be.resize(0.9, be.getHeight())
+	be.move(0.5-be.getWidth()/2, getReferenceHeight() - (ac.getHeight()*1.25)*4)
 	be.setClickHandler(func {
 		if(stream != null) {
 			stream.pause()
@@ -77,8 +76,8 @@ func initialize override
 	be1.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be1.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be1)
-	be1.resize(0.9, btnHeight)
-	be1.move(0.5-be1.getWidth()/2, getReferenceHeight() - btnHeight*1.25)
+	be1.resize(0.9, be1.getHeight())
+	be1.move(0.5-be1.getWidth()/2, getReferenceHeight() - ac.getHeight()*1.25)
 	be1.setClickHandler(func {
 		PRINT("AUDIO CLIP")
 		if(clip != null) {
@@ -89,8 +88,8 @@ func initialize override
 	be2.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be2.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be2)
-	be2.resize(0.9, btnHeight)
-	be2.move(0.5-be2.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*5)
+	be2.resize(0.9, be2.getHeight())
+	be2.move(0.5-be2.getWidth()/2, getReferenceHeight() - (ac.getHeight()*1.25)*5)
 	be2.setClickHandler(func {
 		if(stream != null) {
 			stream.setLooping(true)
@@ -100,8 +99,8 @@ func initialize override
 	be3.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be3.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be3)
-	be3.resize(0.9, btnHeight)
-	be3.move(0.5-be3.getWidth()/2, getReferenceHeight() - (btnHeight*1.25)*6)
+	be3.resize(0.9, be3.getHeight())
+	be3.move(0.5-be3.getWidth()/2, getReferenceHeight() - (ac.getHeight()*1.25)*6)
 	be3.setClickHandler(func {
 		if(stream != null) {
 			var time = stream.getCurrentTime() + 10
@@ -112,8 +111,8 @@ func initialize override
 	be4.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be4.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be4)
-	be4.resize(0.4, btnHeight)
-	be4.move(0.05, getReferenceHeight() - (btnHeight*1.25)*7)
+	be4.resize(0.4, be4.getHeight())
+	be4.move(0.05, getReferenceHeight() - (ac.getHeight()*1.25)*7)
 	be4.setClickHandler(func {
 		if(stream != null) {
 			volume -= 0.05
@@ -127,8 +126,8 @@ func initialize override
 	be5.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be5.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be5)
-	be5.resize(0.4, btnHeight)
-	be5.move(0.5, getReferenceHeight() - (btnHeight*1.25)*7)
+	be5.resize(0.4, be5.getHeight())
+	be5.move(0.55, getReferenceHeight() - (ac.getHeight()*1.25)*7)
 	be5.setClickHandler(func {
 		if(stream != null) {
 			volume += 0.05

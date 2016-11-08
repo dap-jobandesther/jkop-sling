@@ -32,9 +32,13 @@ func initialize override
 	audioManager = AudioManager.forApplication(context)
 	addTextureSpriteForSize(createTextureForImageResource("wood"), getReferenceWidth(), getReferenceHeight())
 	var txt = createTextureForImageResource("poweredbyeqela")
-	var logo = SpriteUtil.addTextureSpriteForWidth(this, getLayer(), txt, 0.75)
+	var logow = getWidthValue("50mm")
+	if(logow > 0.75) {
+		logow = 0.75
+	}
+	var logo = SpriteUtil.addTextureSpriteForWidth(this, getLayer(), txt, logow)
 	logo.move(0.5 - logo.getWidth()/2, getReferenceHeight()/2 - logo.getHeight()/2)
-	var be = TextButtonEntity.forText("Start Game")
+	var be = TextButtonEntity.forTextProperties(TextProperties.forText("Start Game").setFontSizeDescription("5mm"))
 	be.setBackgroundColor(Color.forRGB(128, 255, 128))
 	be.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(be)
@@ -43,12 +47,12 @@ func initialize override
 	be.setClickHandler(func {
 		pushScene(new GameScene())
 	})
-	var ap = TextButtonEntity.forText("Test Audio")
+	var ap = TextButtonEntity.forTextProperties(TextProperties.forText("Test Audio").setFontSizeDescription("5mm"))
 	ap.setBackgroundColor(Color.forRGB(128, 255, 128))
 	ap.setPressedColor(Color.forRGB(80, 150, 80))
 	addEntity(ap)
 	ap.resize(0.9, ap.getHeight())
-	ap.move(0.5-be.getWidth()/2, getReferenceHeight() - (be.getHeight()*1.25)*2)
+	ap.move(0.5-ap.getWidth()/2, be.getY() - (ap.getHeight()*1.25))
 	ap.setClickHandler(func {
 		pushScene(new AudioTestScene())
 	})

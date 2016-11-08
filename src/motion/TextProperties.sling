@@ -47,3 +47,4 @@ prop fontIsItalic = false
 prop fontIsBold = false
 prop fontSizeRelative as double = 0.0
 prop fontSizeAbsolute as double = 1.0
+prop fontSizeDescription as string

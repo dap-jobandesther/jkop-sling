@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
-class imports compiler:
-
-func initialize(ctx as RunContext, initializer as ExtensionInitializer) static
-{
-	initializer.registerFilter(ctx, "CapexServerFilter", func() as ChangeFilter {
-		return(new DataModelsToCapexSQLFilter().setGenerateSQL(true).setGenerateHTTPServer(true))
-	})
-}
+title = "Jkop extension for SAM"
+type = "library"
+depends = [
+	"cape",
+	"capex",
+	"eqcore",
+	"samcore",
+	"samsling"
+]
+prefilters += "modsamtree.NodeProcessorFilter"

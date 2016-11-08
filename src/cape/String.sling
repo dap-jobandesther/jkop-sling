@@ -250,10 +250,18 @@ func forUTF8Buffer(data as buffer #used) static as string
 		return(v)
 	}
 	ELSE IFDEF("target_js") {
-		if(data == null) {
-			return(null)
+		var sb = new StringBuilder()
+		var ci = new CharacterIteratorForBuffer(data)
+		ci.moveToNextChar()
+		loop {
+			if(ci.hasEnded()) {
+				break
+			}
+			var c = ci.getCurrentChar()
+			sb.append(c)
+			ci.moveToNextChar()
 		}
-		return(lang "js" string {{{ decodeURIComponent(escape(String.fromCharCode.apply(null, data))) }}})
+		return(sb.toString())
 	}
 	ELSE {
 		ERROR("Not implemented.")

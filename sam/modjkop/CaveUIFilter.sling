@@ -1,0 +1,150 @@
+
+/*
+ * This file is part of Jkop
+ * Copyright (c) 2016 Job and Esther Technologies, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+class is ChangeFilter imports ast imports compiler imports cape imports sam.sling:
+
+prop target as string
+
+matchfilter AndroidFilter
+{
+	rule
+	{
+		match {
+			var decl = node as ClassDeclarationNode
+			if(decl == null) {
+				return(false)
+			}
+			if(CustomModifierNode.exists_in(ctx, decl, "screen") == false) {
+				return(false)
+			}
+		}
+		process(decl) {
+			CustomModifierNode.remove_from(ctx, decl, "screen")
+			decl.addModifier(ctx, CustomModifierNode.forName(ctx, "androidActivity"))
+			return(true)
+		}
+	}
+}
+
+matchfilter HTMLFilter
+{
+	rule
+	{
+		match {
+			var decl = node as ClassDeclarationNode
+			if(decl == null) {
+				return(false)
+			}
+			if(CustomModifierNode.exists_in(ctx, decl, "screen") == false) {
+				return(false)
+			}
+		}
+		process(decl) {
+			if(CustomModifierNode.exists_in(ctx, decl, "main")) {
+				var className = decl.getNodeName(ctx)
+				var sb = new StringBuilder()
+				TEMPLATE("HTML5CaveUIMain.sling.t", sb)
+				var code = sb.toString()
+				var decls = SlingSourceInput.parseStringAsEntityDeclarations(ctx, code, "HTML5CaveUIMain.sling.t")
+				if(decls == null) {
+					ctx.error("Failed to parse the generated code: HTML5CaveUIMain (compiler internal error)", decl)
+					return(false)
+				}
+				foreach(node as NodeObject in decls.exportNodes(ctx)) {
+					decl.addNode(ctx, node)
+				}
+				decls.destroy(ctx)
+				CustomModifierNode.remove_from(ctx, decl, "main")
+			}
+			CustomModifierNode.remove_from(ctx, decl, "screen")
+			return(true)
+		}
+	}
+}
+
+matchfilter IOSFilter
+{
+	rule
+	{
+		match {
+			var decl = node as ClassDeclarationNode
+			if(decl == null) {
+				return(false)
+			}
+			if(CustomModifierNode.exists_in(ctx, decl, "screen") == false) {
+				return(false)
+			}
+		}
+		process(decl) {
+			if(CustomModifierNode.exists_in(ctx, decl, "main")) {
+				var className = decl.getNodeQualifiedNameString(ctx)
+				var sb = new StringBuilder()
+				TEMPLATE("IOSMain.sling.t", sb)
+				var code = sb.toString()
+				var decls = SlingSourceInput.parseStringAsNameSpaceDeclarations(ctx, code, "IOSMain.sling.t")
+				if(decls == null) {
+					ctx.error("Failed to parse the generated code: IOSMain (compiler internal error)", decl)
+					return(false)
+				}
+				var ct = CodeTree.findCodeTree(ctx, decl)
+				if(ct == null) {
+					ctx.error("Cannot find enclosing code tree", decl)
+					return(false)
+				}
+				foreach(node as NodeObject in decls.exportNodes(ctx)) {
+					ct.addNode(ctx, node)
+				}
+				decls.destroy(ctx)
+				CustomModifierNode.remove_from(ctx, decl, "main")
+			}
+			CustomModifierNode.remove_from(ctx, decl, "screen")
+			return(true)
+		}
+	}
+}
+
+func executeChangeFilter(ctx as RunContext, root as NodeObject) override as bool
+{
+	if(target == null) {
+	}
+	else if(target == "androidj") {
+		if(new AndroidFilter().execute(ctx, root) == false) {
+			return(false)
+		}
+	}
+	else if(cape.String.startsWith(target, "html")) {
+		if(new HTMLFilter().execute(ctx, root) == false) {
+			return(false)
+		}
+	}
+	else if(cape.String.startsWith(target, "ios")) {
+		if(new IOSFilter().execute(ctx, root) == false) {
+			return(false)
+		}
+	}
+	else {
+		ctx.debug("CaveUIFilter: No filter for platform `" .. target .. "'", root)
+	}
+	return(true)
+}

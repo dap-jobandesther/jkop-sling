@@ -22,12 +22,7 @@
  * SOFTWARE.
  */
 
-type = "library"
-depends = [
-	"cape",
-	"capex",
-	"eqcore",
-	"samcore",
-	"samsling"
-]
-prefilters += "modsamtree.NodeProcessorFilter"
+interface:
+
+func setContext(ctx as GuiApplicationContext)
+func getContext as GuiApplicationContext

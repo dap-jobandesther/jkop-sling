@@ -34,7 +34,4 @@ resources = [
 	"images",
 	"audio"
 ]
-prefilters += "modmotion.MotionFilter"
-compilerOptions = {
-	"html5.readableCode" : "true"
-}
+prefilters += "modjkop.MotionFilter"
