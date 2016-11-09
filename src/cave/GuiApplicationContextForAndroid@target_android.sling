@@ -323,3 +323,28 @@ func getWidthValue(spec as string) as double
 {
 	return(cave.Length.asPoints(spec, getScreenDensity()))
 }
+
+class TimerWrapper implements !"java.lang.Runnable"
+{
+	prop callback as function
+	prop timeout as long
+
+	func run
+	{
+		callback()
+	}
+
+	func execute
+	{
+		var h = new !"android.os.Handler"()
+		h.postDelayed(this, timeout)
+	}
+}
+
+func startTimer(timeout as long, callback as function)
+{
+	var w = new TimerWrapper()
+	w.setCallback(callback)
+	w.setTimeout(timeout)
+	w.execute()
+}

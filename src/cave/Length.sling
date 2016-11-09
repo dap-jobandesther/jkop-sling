@@ -165,14 +165,14 @@ func toPoints(ppi as int) as int
 		return(v)
 	}
 	if(unit == UNIT_MICROMETER) {
-		var v = value * ppi / (25 * 1000)
+		var v = value * ppi / 25000
 		if(value > 0 && v < 1) {
 			v = 1
 		}
 		return(v)
 	}
 	if(unit == UNIT_NANOMETER) {
-		var v = value * ppi / (25 * 1000 * 1000)
+		var v = value * ppi / 25000000
 		if(value > 0 && v < 1) {
 			v = 1
 		}

@@ -36,3 +36,4 @@ func getScreenHeight as int
 func getScreenDensity as int
 func getHeightValue(spec as string) as double
 func getWidthValue(spec as string) as double
+func startTimer(timeout as long, callback as function)

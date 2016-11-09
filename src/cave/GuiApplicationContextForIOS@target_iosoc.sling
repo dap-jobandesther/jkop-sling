@@ -109,3 +109,13 @@ func getWidthValue(spec as string) as double
 {
 	return(cave.Length.asPoints(spec, getScreenDensity()))
 }
+
+func startTimer(timeout as long, callback as function)
+{
+	lang "objc" {{{
+		dispatch_time_t dtt = dispatch_time(DISPATCH_TIME_NOW, timeout * 1000);
+		dispatch_after(dtt, dispatch_get_main_queue(), ^(void) {
+			callback();
+		});
+	}}}
+}

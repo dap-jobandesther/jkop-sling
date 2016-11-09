@@ -210,3 +210,10 @@ func getWidthValue(spec as string) as double
 {
 	return(cave.Length.asPoints(spec, getScreenDensity()))
 }
+
+func startTimer(timeout as long, callback as function)
+{
+	lang "js" {{{
+		setTimeout(callback, timeout);
+	}}}
+}
