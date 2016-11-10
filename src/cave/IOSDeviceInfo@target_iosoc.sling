@@ -22,17 +22,26 @@
  * SOFTWARE.
  */
 
-interface is cape.ApplicationContext:
+class:
 
-func getResourceImage(id as string) as Image
-func showMessageDialog(title as string, message as string)
-func showMessageDialog(title as string, message as string, callback as function)
-func showConfirmDialog(title as string, message as string, okcallback as function, cancelcallback as function)
-func showErrorDialog(message as string)
-func showErrorDialog(message as string, callback as function)
-func getScreenWidth as int
-func getScreenHeight as int
-func getScreenDensity as int
-func getHeightValue(spec as string) as double
-func getWidthValue(spec as string) as double
-func startTimer(timeout as long, callback as function)
+func forDetails(id as string, name as string, dpi as int) static as this
+{
+	var v = new this()
+	v.setId(id)
+	v.setName(name)
+	v.setDpi(dpi)
+	return(v)
+}
+
+prop id as string
+prop name as string
+prop dpi as int
+prop scale as double
+prop screenWidth as int
+prop screenHeight as int
+
+func toString as string
+{
+	return(name .. " (" .. id .. ") " .. cape.String.forInteger(screenWidth) .. "x" ..
+		cape.String.forInteger(screenHeight) .. " (" .. cape.String.forDouble(scale) .. "x) @ " .. cape.String.forInteger(dpi) .. "DPI") 
+}

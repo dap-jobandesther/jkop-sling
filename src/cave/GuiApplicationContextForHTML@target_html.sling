@@ -96,8 +96,6 @@ func getResourceImage(id as string) as Image
 	return(Map.getValue(imageCache, id))
 }
 
-func switchActivity(className as string) stub
-
 func logError(message as string)
 {
 	PRINT("[ERROR] " .. message)

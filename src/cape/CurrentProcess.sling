@@ -46,6 +46,10 @@ func terminate(value as int) static
 	}
 }
 
+IFDEF("target_darwin") {
+	depend "objc-header-m:<mach-o/dyld.h>"
+}
+
 func getExecutableFile static as File
 {
 	IFDEF("target_linux") {
@@ -67,8 +71,8 @@ func getExecutableFile static as File
 		return(FileInstance.forPath(filepath))
 	}
 	ELSE IFDEF("target_darwin") {
-		var r as int
-		lang "c" {{{
+		var r as int = -1
+		lang "objc" {{{
 			char buffer[PATH_MAX];
 			uint32_t bs = PATH_MAX;
 			r = _NSGetExecutablePath(buffer, &bs);
@@ -76,13 +80,14 @@ func getExecutableFile static as File
 		if(r != 0) {
 			return(null)
 		}
-		var filepath as string;
-		lang "c" {{{
+		var filepath as string
+		lang "objc" {{{
 			char rp[PATH_MAX];
-			filepath = realpath(buffer, rp);
-			if(filepath == NULL) {
-				filepath = buffer;
+			char* rpx = realpath(buffer, rp);
+			if(rpx == NULL) {
+				rpx = buffer;
 			}
+			filepath = [[NSString alloc] initWithUTF8String:rpx];
 		}}}
 		if(filepath == null) {
 			return(null)
