@@ -30,9 +30,11 @@ func createDefault static as this
 		return(new IOManagerDotNetSelect());
 	}
 	ELSE IFDEF("target_monocs") {
+		/* FIXME
 		if(OS.isLinux()) {
 			return(new IOManagerMonoEpoll());
 		}
+		*/
 		return(new IOManagerDotNetSelect());
 	}
 	ELSE IFDEF("target_objc") {

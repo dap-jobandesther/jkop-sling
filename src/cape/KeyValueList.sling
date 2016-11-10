@@ -62,6 +62,30 @@ func dup as this
 	return(v)
 }
 
+func getKey(index as int) as K
+{
+	if(values == null) {
+		return(DEFAULT(K))
+	}
+	var kvp = Vector.get(values, index)
+	if(kvp == null) {
+		return(DEFAULT(K))
+	}
+	return(kvp.key)
+}
+
+func getValue(index as int) as V
+{
+	if(values == null) {
+		return(DEFAULT(V))
+	}
+	var kvp = Vector.get(values, index)
+	if(kvp == null) {
+		return(DEFAULT(V))
+	}
+	return(kvp.value)
+}
+
 func count as int
 {
 	if(values == null) {

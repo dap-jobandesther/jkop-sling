@@ -86,7 +86,8 @@ class MyTimer is IOManagerTimer is Runnable
 		if(targetTime != null) {
 			return(false);
 		}
-		targetTime = SystemClock.asTimeValue().add(0, delay);
+		var orig = SystemClock.asTimeValue()
+		targetTime = orig.add(0, delay);
 		if(Thread.start(this) == false) {
 			return(false);
 		}

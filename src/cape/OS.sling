@@ -75,6 +75,30 @@ func isSystemType(id as string) static as bool
 			return(false)
 		}
 	}
+	ELSE IFDEF("target_monocs") {
+		if(id == "windows") {
+			var c as int
+			lang "cs" {{{
+				c = System.IO.Path.DirectorySeparatorChar;
+			}}}
+			if(c == '\\') {
+				return(true)
+			}
+			return(false)
+		}
+		if(id == "osx") {
+			if(FileInstance.forPath("/Applications").isDirectory()) {
+				return(true)
+			}
+			return(false)
+		}
+		if(id == "posix" || id == "linux" || id == "unix") {
+			if(FileInstance.forPath("/bin/sh").isFile()) {
+				return(true)
+			}
+			return(false)
+		}
+	}
 	ELSE IFDEF("target_net4cs") {
 		var v = false
 		if(id == "windows") {
