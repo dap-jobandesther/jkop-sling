@@ -164,6 +164,11 @@ func showErrorDialog(message as string, callback as function)
 	}
 }
 
+func getScreenTopMargin as int
+{
+	return(0)
+}
+
 func getScreenWidth as int
 {
 	var v as int

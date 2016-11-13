@@ -176,6 +176,16 @@ func showErrorDialog(message as string, callback as function)
 	}}}
 }
 
+func getScreenTopMargin as int
+{
+	var v as int
+	lang "objc" {{{
+		CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
+		v = MIN(statusBarSize.width, statusBarSize.height);
+	}}}
+	return(v)
+}
+
 func getScreenWidth as int
 {
 	return(getDeviceInfo().getScreenWidth())
