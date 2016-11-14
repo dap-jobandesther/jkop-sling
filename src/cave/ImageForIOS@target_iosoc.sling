@@ -22,79 +22,75 @@
  * SOFTWARE.
  */
 
-class <K,V>:
+class is Image imports cape:
 
-var values as vector<KeyValuePair<K,V>>
+depend "objc-header-m:<UIKit/UIKit.h>"
 
-func add(key as K, val as V)
-{
-	if(values == null) {
-		values = new vector<KeyValuePair<K,V>>
-	}
-	var kvp = new KeyValuePair<K,V>()
-	kvp.key = key
-	kvp.value = val
-	values += kvp
-}
-
-func iterate as Iterator<KeyValuePair<K,V>>
-{
-	var v as Iterator<KeyValuePair<K,V>> = Vector.iterate(values)
-	return(v)
-}
-
-func asVector as vector<KeyValuePair<K,V>>
-{
-	return(values)
-}
-
-func dup as this
+func forFile(file as File) static as this
 {
 	var v = new this()
-	var it as Iterator<KeyValuePair<K,V>> = iterate()
-	while(true) {
-		var kvp = it.next()
-		if(kvp == null) {
-			break
-		}
-		v.add(kvp.key, kvp.value)
+	if(v.readFromFile(file) == false) {
+		v = null
 	}
 	return(v)
 }
 
-func getKey(index as int) as K
+var uiImage public as !"UIImage"
+
+func readFromFile(file as File) as bool
 {
-	if(values == null) {
-		return(DEFAULT(K))
+	if(file == null) {
+		return(false)
 	}
-	var kvp = Vector.get(values, index)
-	if(kvp == null) {
-		return(DEFAULT(K))
+	var pp = file.getPath()
+	if(String.isEmpty(pp)) {
+		return(false)
 	}
-	return(kvp.key)
+	var img as !"UIImage"
+	lang "objc" {{{
+		img = [UIImage imageWithContentsOfFile:pp];
+	}}}
+	if(img == null) {
+		return(false)
+	}
+	this.uiImage = img
+	return(true)
 }
 
-func getValue(index as int) as V
+func getPixelWidth override as int
 {
-	if(values == null) {
-		return(DEFAULT(V))
-	}
-	var kvp = Vector.get(values, index)
-	if(kvp == null) {
-		return(DEFAULT(V))
-	}
-	return(kvp.value)
-}
-
-func count as int
-{
-	if(values == null) {
+	if(uiImage == null) {
 		return(0)
 	}
-	return(Vector.getSize(values))
+	var v as int
+	lang "objc" {{{
+		v = uiImage.size.width;
+	}}}
+	return(v)
 }
 
-func clear
+func getPixelHeight override as int
 {
-	values = null
+	if(uiImage == null) {
+		return(0)
+	}
+	var v as int
+	lang "objc" {{{
+		v = uiImage.size.height;
+	}}}
+	return(v)
 }
+
+func scaleToSize(w as int, h as int) override stub as Image
+func scaleToWidth(w as int) override stub as Image
+func scaleToHeight(h as int) override stub as Image
+func crop(x as int, y as int, w as int, h as int) override stub as Image
+func toJPGData override stub as buffer
+func toPNGData override stub as buffer
+func toRGBAData override stub as buffer
+
+func release override
+{
+	uiImage = null
+}
+

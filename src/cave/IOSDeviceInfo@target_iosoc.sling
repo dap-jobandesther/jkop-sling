@@ -22,54 +22,26 @@
  * SOFTWARE.
  */
 
-class abstract imports cape:
+class:
 
-func createDefault static as this
+func forDetails(id as string, name as string, dpi as int) static as this
 {
-	IFDEF("target_net4cs") {
-		return(new IOManagerDotNetSelect());
-	}
-	ELSE IFDEF("target_monocs") {
-		/* FIXME
-		if(OS.isLinux()) {
-			return(new IOManagerMonoEpoll());
-		}
-		*/
-		return(new IOManagerDotNetSelect());
-	}
-	ELSE IFDEF("target_objc") {
-		return(new IOManagerSelect());
-	}
-	ELSE {
-		return(null);
-	}
+	var v = new this()
+	v.setId(id)
+	v.setName(name)
+	v.setDpi(dpi)
+	return(v)
 }
 
-prop executable as bool = false;
+prop id as string
+prop name as string
+prop dpi as int
+prop scale as double
+prop screenWidth as int
+prop screenHeight as int
 
-func execute(ctx as LoggingContext) virtual as bool
+func toString as string
 {
-	return(false);
+	return(name .. " (" .. id .. ") " .. cape.String.forInteger(screenWidth) .. "x" ..
+		cape.String.forInteger(screenHeight) .. " (" .. cape.String.forDouble(scale) .. "x) @ " .. cape.String.forInteger(dpi) .. "DPI") 
 }
-
-func addWithReadListener(o as object, rrl as function) virtual as IOManagerEntry
-{
-	var v = add(o);
-	if(v != null) {
-		v.setReadListener(rrl);
-	}
-	return(v);
-}
-
-func addWithWriteListener(o as object, wrl as function) virtual as IOManagerEntry
-{
-	var v = add(o);
-	if(v != null) {
-		v.setWriteListener(wrl);
-	}
-	return(v);
-}
-
-func add(o as object) abstract as IOManagerEntry;
-func startTimer(delay as long, handler as function<bool>) abstract as IOManagerTimer;
-func stop abstract;

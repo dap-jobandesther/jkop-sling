@@ -27,7 +27,7 @@ class:
 func forSeconds(seconds as long) static as this
 {
 	var v = new this()
-	v.setSeconds(seconds)
+	v.seconds = seconds
 	return(v)
 }
 
@@ -55,26 +55,23 @@ func copyFrom(tv as this)
 
 func set(tv as this)
 {
-	setSeconds(tv.getSeconds())
-	setMicroSeconds(tv.getMicroSeconds())
+	seconds = tv.getSeconds()
+	microSeconds = tv.getMicroSeconds()
 }
 
 func setSeconds(value as long)
 {
 	seconds = value
-	microSeconds = 0
 }
 
 func setMilliSeconds(value as long)
 {
-	seconds = value / 1000
-	microSeconds = (value % 1000) * 1000
+	microSeconds = value * 1000
 }
 
 func setMicroSeconds(value as long)
 {
-	seconds = value / 1000000
-	microSeconds = value % 1000000
+	microSeconds = value
 }
 
 func add(s as long, us as long) as this
@@ -90,8 +87,8 @@ func add(s as long, us as long) as this
 		tus += 1000000
 	}
 	var v = new this()
-	v.setSeconds(ts)
-	v.setMicroSeconds(tus)
+	v.seconds = ts
+	v.microSeconds = tus
 	return(v)
 }
 

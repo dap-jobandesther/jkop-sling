@@ -24,9 +24,15 @@
 
 class is SSLSocket imports cape:
 
-prop ctx as LoggingContext;
-prop socket as TCPSocket;
-prop serverAddress as string;
+prop ctx as LoggingContext
+prop socket as TCPSocket
+prop serverAddress as string
+var acceptInvalidCertificate as bool
+
+func setAcceptInvalidCertificate(v as bool) override
+{
+	acceptInvalidCertificate = v
+}
 
 lang "cs" {{{
 	System.Net.Security.SslStream sslStream;
@@ -36,7 +42,11 @@ lang "cs" {{{
 		if(sslPolicyErrors == System.Net.Security.SslPolicyErrors.None) {
 			return(true);
 		}
-		System.Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+		if(acceptInvalidCertificate) {
+			System.Console.WriteLine("Certificate error: {0} (but accepting it)", sslPolicyErrors);
+			return(true);
+		}
+		System.Console.WriteLine("Certificate error: {0} (rejecting it)", sslPolicyErrors);
 		return(false);
 	}
 }}}

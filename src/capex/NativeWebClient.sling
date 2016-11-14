@@ -32,8 +32,11 @@ func instance static as WebClient
 	ELSE IFDEF("target_js") {
 		return(new WebClientForJavaScript())
 	}
+	ELSE IFDEF("target_iosoc") {
+		return(new WebClientForIOS())
+	}
 	ELSE {
-		PRINT("Not implemented.")
+		ERROR("Not implemented.")
 		return(null)
 	}
 }

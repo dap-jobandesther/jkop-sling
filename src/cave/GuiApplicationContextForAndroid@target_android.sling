@@ -257,6 +257,11 @@ func getResourceImage(id as string) as Image
 	return(ImageForAndroid.forResource(id, activityContext))
 }
 
+func getScreenTopMargin as int
+{
+	return(0)
+}
+
 func getScreenWidth as int
 {
 	var activity = activityContext as !"android.app.Activity"
@@ -312,4 +317,39 @@ func getScreenDensity as int
 	var metrics = new !"android.util.DisplayMetrics"()
 	display.getMetrics(metrics)
 	return(lang "java" int {{{ (int)metrics.xdpi }}})
+}
+
+func getHeightValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
+
+func getWidthValue(spec as string) as double
+{
+	return(cave.Length.asPoints(spec, getScreenDensity()))
+}
+
+class TimerWrapper implements !"java.lang.Runnable"
+{
+	prop callback as function
+	prop timeout as long
+
+	func run
+	{
+		callback()
+	}
+
+	func execute
+	{
+		var h = new !"android.os.Handler"()
+		h.postDelayed(this, timeout)
+	}
+}
+
+func startTimer(timeout as long, callback as function)
+{
+	var w = new TimerWrapper()
+	w.setCallback(callback)
+	w.setTimeout(timeout)
+	w.execute()
 }

@@ -269,6 +269,7 @@ var openSocketPort as int;
 prop defaultUserAgent as string = null;
 var parser as MyResponseParser;
 var receiveBuffer as buffer;
+prop acceptInvalidCertificate = false
 
 ctor
 {
@@ -313,7 +314,7 @@ func openConnection(protocol as string, address as string, aport as int, listene
 		return(false);
 	}
 	if(protocol == "https") {
-		openSocket = SSLSocket.forClient(openSocket, address);
+		openSocket = SSLSocket.forClient(openSocket, address, null, acceptInvalidCertificate);
 		if(openSocket == null && listener != null) {
 			listener.onError("FAILED to create SSL socket for HTTPS");
 			closeConnection(listener);

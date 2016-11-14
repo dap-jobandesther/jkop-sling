@@ -28,7 +28,7 @@ class MyAppDelegate implements !"UIApplicationDelegate" depends "objc-header-h:<
 {
 	var window protected as !"UIWindow*"
 	var viewController protected as !"UIViewController*"
-	var ctx protected as LoggingContext
+	var ctx protected as cave.GuiApplicationContextForIOS
 
 	ctor
 	{
@@ -43,7 +43,7 @@ class MyAppDelegate implements !"UIApplicationDelegate" depends "objc-header-h:<
 		}}}
 		var cc = new {%= className %}()
 		if(cc is cave.ScreenWithContext) {
-			cc.setContext(ctx)
+			(cc as! cave.ScreenWithContext).setContext(ctx)
 		}
 		viewController = cc
 		lang "objc" {{{
