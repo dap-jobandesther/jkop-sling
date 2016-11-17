@@ -283,8 +283,18 @@ func toJPGData override as buffer
 
 func toPNGData override as buffer
 {
-	ERROR("Not implemented")
-	return(null)
+	if(bitmap == null) {
+		return(null)
+	}
+	var buf as buffer
+	lang "java" {{{
+		java.io.ByteArrayOutputStream baStream = new java.io.ByteArrayOutputStream();
+		android.graphics.Bitmap.CompressFormat cf = android.graphics.Bitmap.CompressFormat.PNG;
+		if(bitmap.compress(cf, 70, baStream)) {
+			buf = baStream.toByteArray();
+		}
+	}}}
+	return(buf)
 }
 
 func toRGBAData override as buffer
