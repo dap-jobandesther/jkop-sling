@@ -89,6 +89,16 @@ func importData(data as DynamicMap)
 				{%= StringUtil.combineCamelCase([ "set", fieldName ]) %}(data.getString("{%= fieldName %}", {%= fieldName %}))
 				{%
 			}
+			else if(dataType is BufferDataTypeNode) {
+				%}
+				{%= StringUtil.combineCamelCase([ "set", fieldName ]) %}(data.getBuffer("{%= fieldName %}"))
+				{%
+			}
+			else if(dataType is DoubleDataTypeNode) {
+				%}
+				{%= StringUtil.combineCamelCase([ "set", fieldName ]) %}(data.getDouble("{%= fieldName %}", {%= fieldName %}))
+				{%
+			}
 			else {
 				%}
 				{%= StringUtil.combineCamelCase([ "set", fieldName ]) %}(data.get("{%= fieldName %}", {%= fieldName %}))

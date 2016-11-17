@@ -50,22 +50,48 @@ func getTableInfo(tableName as string) static as SQLTableInfo
 				}
 			}
 			else {
+				var isUnique = CustomModifierNode.exists_in(ctx, dataField, "unique")
+				var isIndex = CustomModifierNode.exists_in(ctx, dataField, "index")
+				var isText = CustomModifierNode.exists_in(ctx, dataField, "text")
 				if(dataType is IntegerDataTypeNode) {
 					%}
 					v.addIntegerColumn("{%= fieldName %}")
 					{%
 				}
 				else if(dataType is StringDataTypeNode) {
+					if(isText) {
+						if(isUnique || isIndex) {
+							ctx.error("Data field with text data type (#text) cannot be #unique or #index", dataField)
+							return(fail)
+						}
+						%}
+						v.addTextColumn("{%= fieldName %}")
+						{%
+					}
+					else {
+						%}
+						v.addStringColumn("{%= fieldName %}")
+						{%
+					}
+				}
+				else if(dataType is BufferDataTypeNode) {
+					if(isUnique || isIndex) {
+						ctx.error("Data field with buffer data type cannot be #unique or #index", dataField)
+						return(fail)
+					}
 					%}
-					v.addStringColumn("{%= fieldName %}")
+					v.addBlobColumn("{%= fieldName %}")
+					{%
+				}
+				else if(dataType is DoubleDataTypeNode) {
+					%}
+					v.addDoubleColumn("{%= fieldName %}")
 					{%
 				}
 				else {
 					ctx.error("Unsupported data type for data field", dataType)
 					return(fail)
 				}
-				var isUnique = CustomModifierNode.exists_in(ctx, dataField, "unique")
-				var isIndex = CustomModifierNode.exists_in(ctx, dataField, "index")
 				if(isUnique && isIndex) {
 					ctx.error("Data field cannot be both #unique and #index", dataField)
 					return(fail)
