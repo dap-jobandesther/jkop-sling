@@ -127,6 +127,19 @@ ctor(str as string)
 	parse(str)
 }
 
+func isLightColor as bool
+{
+	if(red + green + blue >= 1.5) {
+		return(true)
+	}
+	return(false)
+}
+
+func isDarkColor as bool
+{
+	return(!isLightColor())
+}
+
 func hexCharToInt(c as char) private as int
 {
 	if(c >= '0' && c <= '9') {
