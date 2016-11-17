@@ -22,8 +22,16 @@
  * SOFTWARE.
  */
 
-class:
+class is StringObject imports cape:
 
+func forString(string as string) static as this
+{
+	var v = new this()
+	v.setCompleteString(string)
+	return(v)
+}
+
+prop completeString as string
 prop country as string
 prop countryCode as string
 prop administrativeArea as string
@@ -33,3 +41,12 @@ prop subLocality as string
 prop thoroughfare as string
 prop subThoroughfare as string
 prop postalCode as string
+
+func toString as string
+{
+	if(String.isEmpty(completeString) == false) {
+		return(completeString)
+	}
+	ERROR("NOT IMPLEMENTED")
+	return(null)
+}
