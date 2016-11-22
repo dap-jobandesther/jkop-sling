@@ -146,7 +146,7 @@ lang "java" {{{
 					sb.append(str);
 					sb.append(" ");
 				}
-				a.setCompleteString(sb.toString());
+				a.setCompleteAddress(sb.toString());
 				a.setCountry(address.getCountryName());
 				a.setCountryCode(address.getCountryCode());
 				a.setAdministrativeArea(address.getAdminArea());
