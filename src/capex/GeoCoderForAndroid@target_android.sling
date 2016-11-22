@@ -137,6 +137,16 @@ lang "java" {{{
 			}
 			else {
 				GeoCoderAddress a = new GeoCoderAddress();
+				java.lang.StringBuilder sb = new java.lang.StringBuilder();
+				for(int i = 0; true; i++) {
+					java.lang.String str = address.getAddressLine(i);
+					if(str == null) {
+						break;
+					}
+					sb.append(str);
+					sb.append(" ");
+				}
+				a.setCompleteString(sb.toString());
 				a.setCountry(address.getCountryName());
 				a.setCountryCode(address.getCountryCode());
 				a.setAdministrativeArea(address.getAdminArea());
