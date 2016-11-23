@@ -303,7 +303,7 @@ var connectionString as string
 func initialize(serverAddress as string, username as string, password as string, database as string) override as bool
 {
 	setDatabaseName(database)
-	connectionString = "Database=" .. database .. ";Data Source=" .. serverAddress .. ";User Id=" .. username .. ";Password=" .. password
+	connectionString = "Database=" .. database .. ";Data Source=" .. serverAddress .. ";User Id=" .. username .. ";Allow User Variables=True;Password=" .. password
 	Log.debug(getLogger(), "MySQL connection string: `" .. connectionString .. "'")
 	return(true)
 }
