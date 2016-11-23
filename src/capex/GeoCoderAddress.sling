@@ -22,8 +22,16 @@
  * SOFTWARE.
  */
 
-class:
+class is StringObject imports cape:
 
+func forAddress(address as string) static as this
+{
+	var v = new this()
+	v.setCompleteAddress(address)
+	return(v)
+}
+
+prop completeAddress as string
 prop country as string
 prop countryCode as string
 prop administrativeArea as string
@@ -33,3 +41,8 @@ prop subLocality as string
 prop thoroughfare as string
 prop subThoroughfare as string
 prop postalCode as string
+
+func toString as string
+{
+	return(completeAddress)
+}

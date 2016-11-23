@@ -27,9 +27,8 @@ class is WebClient imports cape:
 class MyRequestListener implements !"NSURLConnectionDelegate"
 {
 	prop callback as function<void, string, KeyValueList<string,string>, buffer>
-	var responseData as buffer
-	var responseCode as string
-
+	var responseData as buffer #used
+	var responseCode as string #used
 
 	lang "objc" {{{
 		- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {

@@ -28,6 +28,7 @@ func forActivityContext(ctx as !"android.content.Context") static as this
 {
 	var v = new this()
 	v.setActivityContext(ctx)
+	v.printDeviceInfo()
 	return(v)
 }
 
@@ -352,4 +353,9 @@ func startTimer(timeout as long, callback as function)
 	w.setCallback(callback)
 	w.setTimeout(timeout)
 	w.execute()
+}
+
+func printDeviceInfo
+{
+	logDebug("GuiApplicationContextForAndroid initialized: " .. String.forInteger(getScreenWidth()) .. "x" .. String.forInteger(getScreenHeight()) .. " @ " .. String.forInteger(getScreenDensity()) .. "DPI")
 }

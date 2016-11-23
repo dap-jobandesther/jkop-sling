@@ -24,7 +24,7 @@
 
 class is Image imports cape:
 
-depend "objc-header-m:<UIKit/UIKit.h>"
+depend "objc-header-h:<UIKit/UIKit.h>"
 
 func forFile(file as File) static as this
 {
@@ -32,6 +32,13 @@ func forFile(file as File) static as this
 	if(v.readFromFile(file) == false) {
 		v = null
 	}
+	return(v)
+}
+
+func forUIImage(uiImage as !"UIImage") static as this
+{
+	var v = new this()
+	v.uiImage = uiImage
 	return(v)
 }
 
