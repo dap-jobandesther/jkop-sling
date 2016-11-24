@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class is IOManager private depends "mono:Mono.Posix.dll" imports cape:
+class is IOManager private depends "dll:Mono.Posix.dll" imports cape:
 
 prop epollfd as int = -1;
 var exitflag as bool;
