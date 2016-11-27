@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class imports cape imports xnet:
+class imports cape imports sympathy:
 
 func main(args as array<string>) as int #main
 {

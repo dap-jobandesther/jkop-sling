@@ -23,11 +23,9 @@
  */
 
 title = "Sympathy"
-description = "Sympathy Web Service Framework"
+description = "A general-purpose network application development engine and framework"
 type = "library"
 depends = [
 	"cape",
-	"capex",
-	"xnet"
+	"capex"
 ]
-prefilters += "modjkop.CapexServerFilter"

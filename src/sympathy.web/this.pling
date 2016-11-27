@@ -22,10 +22,12 @@
  * SOFTWARE.
  */
 
-title = "Jkop Xnet"
-description = "Network application development engine and framework"
+title = "Sympathy Web"
+description = "Sympathy Web Service Framework"
 type = "library"
 depends = [
 	"cape",
-	"capex"
+	"capex",
+	"sympathy"
 ]
+prefilters += "modjkop.CapexServerFilter"

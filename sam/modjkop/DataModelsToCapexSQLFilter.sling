@@ -148,7 +148,7 @@ rule
 			newClass.addBaseTypeIs(ctx, CustomDataTypeNode.forName(ctx, "HTTPServerRequestHandlerMap"))
 			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "cape"))
 			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "capex"))
-			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "xnet"))
+			newClass.importNamespace(ctx, SymbolNameNode.forName(ctx, "sympathy"))
 			newClass.addModifier(ctx, new PublicModifierNode())
 			newClass.addModifier(ctx, new StaticModifierNode())
 			foreach(node as NodeObject in decls.exportNodes(ctx)) {
