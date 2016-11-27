@@ -22,19 +22,7 @@
  * SOFTWARE.
  */
 
-title = "Jkop Capex MySQL support"
 copyright = "Copyright (c) 2016 Job and Esther Technologies, Inc."
 license = "All rights reserved"
 version = "1.0.x"
 vendorId = "org.jkop"
-type = "library"
-modules = [
-	"capex.mysql"
-]
-depends = [
-	"cape",
-	"capex"
-]
-resources = [
-	"capex.mysql/MySql.Data.dll"
-]

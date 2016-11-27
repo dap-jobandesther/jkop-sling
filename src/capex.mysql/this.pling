@@ -22,9 +22,12 @@
  * SOFTWARE.
  */
 
-class is TCPClient imports cape:
-
-depend "androidPermission:android.permission.INTERNET"
-
-func start(ctx as LoggingContext, address as string, port as int) override stub as bool;
-func stop override stub;
+title = "Jkop CAPEx MySQL support"
+type = "library"
+depends = [
+	"cape",
+	"capex"
+]
+resources = [
+	"MySql.Data.dll"
+]

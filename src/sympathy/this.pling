@@ -22,15 +22,12 @@
  * SOFTWARE.
  */
 
-title = "Jkop Xnet"
-description = "Network application development engine and framework"
-copyright = "Copyright (c) 2016 Job and Esther Technologies, Inc."
-license = "All rights reserved"
-version = "1.0.x"
-vendorId = "org.jkop"
+title = "Sympathy"
+description = "Sympathy Web Service Framework"
 type = "library"
-modules += "xnet"
 depends = [
 	"cape",
-	"capex"
+	"capex",
+	"xnet"
 ]
+prefilters += "modjkop.CapexServerFilter"

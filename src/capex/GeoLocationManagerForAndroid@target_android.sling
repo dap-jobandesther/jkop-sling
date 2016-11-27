@@ -24,6 +24,11 @@
 
 class is GeoLocationManager imports cape:
 
+IFDEF("target_android") {
+	depend "androidPermission:android.permission.ACCESS_FINE_LOCATION"
+	depend "androidPermission:android.permission.ACCESS_COARSE_LOCATION"
+}
+
 var instance static as this
 
 func getInstance(ctx as AndroidApplicationContext) static as this
