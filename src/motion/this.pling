@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 
-title = "Jkop Cape"
-description = "A cross-platform, cross-language software development framework"
-copyright = "Copyright (c) 2016 Job and Esther Technologies, Inc."
-license = "All rights reserved"
-version = "1.0.x"
-vendorId = "org.jkop"
+title = "Jkop Motion"
+description = "A multimedia engine for gaming and other high performance applications"
 type = "library"
-modules += "cape"
+depends = [
+	"cape",
+	"cave"
+]

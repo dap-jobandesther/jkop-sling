@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-class is TCPClient imports cape:
-
-func start(ctx as LoggingContext, address as string, port as int) override stub as bool;
-func stop override stub;
+title = "Jkop CAPE"
+description = "A cross-platform, cross-language software development framework"
+type = "library"

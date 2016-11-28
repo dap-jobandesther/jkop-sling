@@ -22,7 +22,11 @@
  * THE SOFTWARE.
  */
 
-class is MySQLDatabase depends "mono:System.Data.dll" imports cape imports capex:
+class is MySQLDatabase imports cape imports capex:
+
+IFDEF("target_mono") {
+	depend "dll:System.Data.dll"
+}
 
 class Statement is SQLStatement
 {

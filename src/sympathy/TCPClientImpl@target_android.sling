@@ -22,16 +22,9 @@
  * SOFTWARE.
  */
 
-title = "Jkop Cave"
-description = "A cross-platform, cross-language user interface development framework"
-copyright = "Copyright (c) 2016 Job and Esther Technologies, Inc."
-license = "All rights reserved"
-version = "1.0.x"
-vendorId = "org.jkop"
-type = "library"
-modules = [
-	"cave"
-]
-depends = [
-	"cape"
-]
+class is TCPClient imports cape:
+
+depend "androidPermission:android.permission.INTERNET"
+
+func start(ctx as LoggingContext, address as string, port as int) override stub as bool;
+func stop override stub;

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-class imports cape imports xnet:
+class imports cape imports sympathy:
 
 // This is how we can receive large amounts of POST data
 

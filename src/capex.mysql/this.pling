@@ -1,6 +1,6 @@
 
 /*
- * This file is part of Sympathy
+ * This file is part of Jkop
  * Copyright (c) 2016 Job and Esther Technologies, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,21 +22,12 @@
  * SOFTWARE.
  */
 
-title = "Sympathy"
-description = "Sympathy Web Service Framework"
-copyright = "Copyright (c) 2016 Job and Esther Technologies, Inc."
-license = "All rights reserved"
-version = "4.0.x"
+title = "Jkop CAPEx MySQL support"
 type = "library"
-
-modules = [
-	"sympathy"
-]
-
 depends = [
 	"cape",
-	"capex",
-	"xnet"
+	"capex"
 ]
-
-prefilters += "modjkop.CapexServerFilter"
+resources = [
+	"MySql.Data.dll"
+]
